@@ -15,7 +15,7 @@ void initRegFile(int32_t val) {
 void printRegFile() {
     printf("\n ----- REG DUMP ----- \n");
     int j;
-    for ( j=0; j < NUMBER_OF_REGS; j++) {
+    for (j=0; j < NUMBER_OF_REGS; j++) {
         printf("REG[%2d]: 0x%08x (%d)",j,RegFile[j],RegFile[j]);
         if(j%2==0){
             printf("\t\t");

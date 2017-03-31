@@ -430,7 +430,7 @@ int LoadOSMemory(const char * file_name) {
         printf("Unable to read Binary");
         return -2;
     }
-        //Allocate memory for elf_file data
+    //Allocate memory for elf_file data
     char * elf_data = (char*) mmap(NULL, file_stat.st_size, PROT_READ,MAP_PRIVATE, elf_fd, 0);
     if (elf_data == MAP_FAILED) {
         printf("Unable to allocated required memory");
