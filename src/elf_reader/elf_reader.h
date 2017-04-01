@@ -83,14 +83,14 @@ extern struct syscall_addresses syscalls;
 extern struct memElement *MAIN_MEMORY;
 extern struct execinfo exec;
 
-extern void writefPointer(char const *fName, uint32_t *fAddr,struct Exe_Format  *exFormat   ,bool DEBUG);
-extern uint32_t* readfPointer(char const * fName, struct Exe_Format *exFormat,bool DEBUG);
-extern struct fpointer* findfPointer(char const * fName, struct Exe_Format *exFormat,bool DEBUG);
+extern void writefPointer(char const* fName, uint32_t* fAddr, struct Exe_Format* exFormat, bool DEBUG);
+extern uint32_t* readfPointer(char const* fName, struct Exe_Format* exFormat,bool DEBUG);
+extern struct fpointer* findfPointer(char const* fName, struct Exe_Format* exFormat, bool DEBUG);
 
 extern void writeByte(uint32_t ADDR, uint8_t DATA,bool DEBUG);
 extern void writeWord(uint32_t ADDR, uint32_t DATA, bool DEBUG1);
-extern uint8_t readByte(uint32_t ADDR,bool DEBUG);
-extern uint32_t readWord(uint32_t ADDR,bool DEBUG);
+extern uint8_t readByte(uint32_t ADDR, bool DEBUG);
+extern uint32_t readWord(uint32_t ADDR, bool DEBUG);
 
 extern void init_syscalls(); 
 extern void fill_syscall(uint32_t address, uint16_t call);
@@ -98,9 +98,9 @@ extern void fill_ex_and_add(uint32_t address);
 extern void fill_atomic_add(uint32_t address);
 extern void fill_syscall_redirects();
  
-extern int parse_elf(const char * elf_data, size_t elf_length,struct Exe_Format * exeFormat);
+extern int parse_elf(const char* elf_data, size_t elf_length, struct Exe_Format* exeFormat);
 
-extern int LoadOSMemory(const char * file_name);
+extern int LoadOSMemory(const char* file_name);
 
 extern void CleanUp();
 
