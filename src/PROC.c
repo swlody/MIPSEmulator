@@ -10,6 +10,7 @@
 #include "Syscall.h"
 #include "utils/heap.h"
 #include "elf_reader/elf_reader.h"
+#include "utils/instructions.h"
 
 uint32_t DynInstCount = 0;
 
@@ -20,14 +21,6 @@ void write_initialization_vector(uint32_t sp, uint32_t gp, uint32_t start) {
     RegFile[29] = sp;
     RegFile[31] = start;
     printRegFile();
-}
-
-int getFunct(uint32_t instr) {
-    return instr & 0x3f;
-}
-
-int getOpcode(uint32_t instr) {
-    return (instr >> 26) & 0x3f;
 }
 
 int main(int argc, char * argv[]) {
@@ -66,9 +59,11 @@ int main(int argc, char * argv[]) {
         CurrentInstruction = readWord(PC, false);  
         printRegFile();
         switch(getFunct(CurrentInstruction)) {
-            case 0x20:
+            case 0x20:{
                 // add
                 int opCode = getOpcode(CurrentInstruction);
+                int RS = getRS(CurrentInstruction);
+                int RT = getRT(CurrentInstruction);
                 if(opCode == 0x8) {
                     // addi
                 } else if(opCode == 0x9) {
@@ -77,51 +72,63 @@ int main(int argc, char * argv[]) {
                     // Default add
                 }
                 break;
-            case 0x21:
+            }
+            case 0x21:{
                 // addu
 
                 break;
-            case 0x22:
+            }
+            case 0x22:{
                 // sub
 
                 break;
-            case 0x23:
+            }
+            case 0x23:{
                 // subu
 
                 break;
-            case 0x1A:
+            }
+            case 0x1A:{
                 // div
 
                 break;
-            case 0x1B:
+            }
+            case 0x1B:{
                 // divu
 
                 break;
-            case 0x18:
+            }
+            case 0x18:{
                 // mult
 
                 break;
-            case 0x19:
+            }
+            case 0x19:{
                 // multu
 
                 break;
-            case 0x10:
+            }
+            case 0x10:{
                 // mfhi
 
                 break;
-            case 0x12:
+            }
+            case 0x12:{
                 // mflo
 
                 break;
-            case 0x11:
+            }
+            case 0x11:{
                 // mthi
 
                 break;
-            case 0x13:
+            }
+            case 0x13:{
                 // mtlo
 
                 break;
-            case 0x24:
+            }
+            case 0x24:{
                 // and
                 int opCode = getOpcode(CurrentInstruction);
                 if(opCode == 0xC) {
@@ -130,7 +137,8 @@ int main(int argc, char * argv[]) {
                     // Default and
                 }
                 break;
-            case 0x26:
+            }
+            case 0x26:{
                 // xor
                 int opCode = getOpcode(CurrentInstruction);
                 if(opCode == 0xE) {
@@ -139,11 +147,13 @@ int main(int argc, char * argv[]) {
                     // Default xor
                 }
                 break;
-            case 0x27:
+            }
+            case 0x27:{
                 // nor
 
                 break;
-            case 0x25:
+            }
+            case 0x25:{
                 // or
                 int opCode = getOpcode(CurrentInstruction);
                 if(opCode == 0xD) {
@@ -152,15 +162,18 @@ int main(int argc, char * argv[]) {
                     // Default or
                 }
                 break;
-            case 0x00:
+            }
+            case 0x00:{
                 // sll
 
                 break;
-            case 0x4:
+            }
+            case 0x08:{
                 // sllv
 
                 break;
-            case 0x2A:
+            }
+            case 0x2A:{
                 // slt
                 int opCode = getOpcode(CurrentInstruction);
                 if(opCode == 0xA) {
@@ -171,37 +184,45 @@ int main(int argc, char * argv[]) {
                     // Default slt
                 }
                 break;
-            case 0x2B:
+            }
+            case 0x2B:{
                 // sltu
 
                 break;
-            case 0x3:
+            }
+            case 0x03:{
                 // sra
 
                 break;
-            case 0x7:
+            }
+            case 0x07:{
                 // srav
 
                 break;
-            case 0x2:
+            }
+            case 0x02:{
                 // srl
 
                 break;
-            case 0x4:
+            }
+            case 0x04:{
                 // srlv
 
                 break;
-            default:
+            }
+            default:{
                 int opCode = getOpcode(CurrentInstruction);
                 switch(opCode) {
                     // LB, LBU, SB, SH, etc.
-                    default:
+                    default:{
                         // NOP
 
                         break;
+                    }
                 }
 
                 break;
+            }
         } // End switch
 
 
