@@ -1,3 +1,5 @@
 *.pdf
 tests/*
 eMIPS
+stderr.txt
+stdout.txt

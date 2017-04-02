@@ -3,7 +3,11 @@
  * CSC 252 - Project 3
  */
 
+// TODO What to do in case of exception?
+// TODO What to do if MaxInstr > #instructions in proram? (and how to detect)
+
 #include <inttypes.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "RegFile.h"
@@ -51,6 +55,11 @@ int main(int argc, char * argv[]) {
     // & provide startAddress of Program in Memory to Processor
     write_initialization_vector(exec.GSP, exec.GP, exec.GPC_START);
 
+    // char* RegNames[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+    //     "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+    //     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
+    //     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"};
+
     printf("\n ----- Execute Program ----- \n");
     printf("Max Instruction to run = %d \n", MaxInst);
     PC = exec.GPC_START;
@@ -59,334 +68,382 @@ int main(int argc, char * argv[]) {
         DynInstCount++;
         CurrentInstruction = readWord(PC, false);  
         printRegFile();
-        switch(getFunct(CurrentInstruction)) {
-            /*********** ARITHMETIC INSTRUCTIONS ***********/
-            case 0x20:{
-                // add
-                uint32_t RS = getRS(CurrentInstruction);
-                uint32_t RT = getRT(CurrentInstruction); 
-                uint32_t RD = getRD(CurrentInstruction);
-                uint32_t sum = readWord(RS, false) + readWord(RT, false);
-                writeWord(RD, sum, false);
+        uint8_t opCode = getOpcode(CurrentInstruction);
+        switch(opCode) {
+            /*********** IMMEDIATE INSTRUCTIONS ***********/
+            case 0x08:{
+                // addi
+                uint8_t RS = getRS(CurrentInstruction);
+                uint8_t RT = getRT(CurrentInstruction);
+                int16_t i = getImmediate(CurrentInstruction);
+                if((RegFile[RS] > 0 && i > INT_MAX - RegFile[RS])
+                    || (RegFile[RS] < 0 && i < INT_MIN - RegFile[RS])) {
+                    // TODO Overflow occurs
+                    break;
+                }
+                int32_t sum = RegFile[RS] + i;
+                RegFile[RT] = sum;
                 break;
             }
-            case 0x21:{
-                // addu
+            case 0x09:{
+                // addiu
+                uint8_t RS = getRS(CurrentInstruction);
+                int16_t i = getImmediate(CurrentInstruction);
+                uint8_t RD = getRD(CurrentInstruction);
+                RegFile[RD] = RegFile[RS] + i;
+                break;
+            }
+            case 0x0C:{
+                // andi
+                uint8_t RS = getRS(CurrentInstruction);
+                int16_t i = getImmediate(CurrentInstruction);
+                uint8_t RD = getRD(CurrentInstruction);
+                RegFile[RD] = RegFile[RS] & zeroExtend(i);
+                break;
+            }
+            case 0x0E:{
+                // xori
+                uint8_t RS = getRS(CurrentInstruction);
+                int16_t i = getImmediate(CurrentInstruction);
+                uint8_t RD = getRD(CurrentInstruction);
+                RegFile[RD] = RegFile[RS] ^ zeroExtend(i);
+                break;
+            }
+            case 0x0D:{
+                // ori
+                uint8_t RS = getRS(CurrentInstruction);
+                int16_t i = getImmediate(CurrentInstruction);
+                uint8_t RD = getRD(CurrentInstruction);
+                RegFile[RD] = RegFile[RS] | zeroExtend(i);
+                break;
+            }
+            case 0x0A:{
+                // slti
 
                 break;
             }
-            case 0x22:{
-                // sub
+            case 0x0B:{
+                // sltiu
 
                 break;
             }
-            case 0x23:{
-                // subu
 
-                break;
-            }
-            case 0x1A:{
-                // div
-
-                break;
-            }
-            case 0x1B:{
-                // divu
-
-                break;
-            }
-            case 0x18:{
-                // mult
-
-                break;
-            }
-            case 0x19:{
-                // multu
-
-                break;
-            }
-            case 0x10:{
-                // mfhi
-
-                break;
-            }
-            case 0x12:{
-                // mflo
-
-                break;
-            }
-            case 0x11:{
-                // mthi
-
-                break;
-            }
-            case 0x13:{
-                // mtlo
-
-                break;
-            }
-            /*********** LOGIC INSTRUCTIONS ***********/
-            case 0x24:{
-                // and
-                break;
-            }
-            case 0x26:{
-                // xor
-                break;
-            }
-            case 0x27:{
-                // nor
-
-                break;
-            }
-            case 0x25:{
-                // or
-
-                break;
-            }
-            /*********** SHIFTS ***********/
-            case 0x00:{
-                // sll
-                if(CurrentInstruction != 0) {
-
-                } // else NOP
-                break;
-            }
+            /*********** BRANCHES AND JUMPS ***********/
             case 0x04:{
-                // sllv
+                // beq
 
                 break;
             }
-            case 0x2A:{
-                // slt
-
-                break;
-            }
-            case 0x2B:{
-                // sltu
-
-                break;
-            }
-            case 0x03:{
-                // sra
+            case 0x14:{
+                // beql
 
                 break;
             }
             case 0x07:{
-                // srav
-
-                break;
-            }
-            case 0x02:{
-                // srl
+                // bgtz
 
                 break;
             }
             case 0x06:{
-                // srlv
+                // blez
 
                 break;
             }
-            case 0x09:{
-                // jalr
+            case 0x16:{
+                // blezl
 
                 break;
             }
-            case 0x08:{
-                // jr
+            case 0x05:{
+                // bne
 
                 break;
             }
-            case 0x0C:{
-                // syscall
+            case 0x15:{
+                // bnel
 
                 break;
             }
-            default:{
-                int opCode = getOpcode(CurrentInstruction);
-                switch(opCode) {
-                    /*********** IMMEDIATE INSTRUCTIONS ***********/
-                    case 0x08:{
-                        // addi
-                        uint32_t RS = getRS(CurrentInstruction);
-                        uint32_t RT = getRT(CurrentInstruction);
-                        uint32_t sum = readWord(RS, false) + getImmediate(CurrentInstruction);
-                        writeWord(RT, sum, false);
-                        break;
-                    }
-                    case 0x09:{
-                        // addiu
+            case 0x02:{
+                // j
 
-                        break;
-                    }
-                    case 0x0C:{
-                        // andi
+                break;
+            }
+            case 0x03:{
+                // jal
 
-                        break;
-                    }
-                    case 0x0E:{
-                        // xori
+                break;
+            }
 
-                        break;
-                    }
-                    case 0x0D:{
-                        // ori
+            /*********** LOADS ***********/
+            case 0x20:{
+                // LB
 
-                        break;
-                    }
-                    case 0x0A:{
-                        // slti
+                break;
+            }
+            case 0x24:{
+                // LBU
 
-                        break;
-                    }
-                    case 0x0B:{
-                        // sltiu
+                break;
+            }
+            case 0x21:{
+                // LH
 
-                        break;
-                    }
+                break;
+            }
+            case 0x25:{
+                // LHU
 
-                    /*********** BRANCHES AND JUMPS ***********/
-                    case 0x04:{
-                        // beq
+                break;
+            }
+            case 0x0F:{
+                // LUI
 
-                        break;
-                    }
-                    case 0x14:{
-                        // beql
+                break;
+            }
+            case 0x23:{
+                // LW
 
-                        break;
-                    }
-                    case 0x07:{
-                        // bgtz
+                break;
+            }
+            case 0x22:{
+                // LWL
 
-                        break;
-                    }
-                    case 0x06:{
-                        // blez
+                break;
+            }
+            case 0x26:{
+                // LWR
 
-                        break;
-                    }
-                    case 0x16:{
-                        // blezl
+                break;
+            }
 
-                        break;
-                    }
-                    case 0x05:{
-                        // bne
+            /*********** STORES ***********/
+            case 0x28:{
+                // SB
 
-                        break;
-                    }
-                    case 0x15:{
-                        // bnel
+                break;
+            }
+            case 0x29:{
+                // SH
 
-                        break;
-                    }
-                    case 0x02:{
-                        // j
+                break;
+            }
+            case 0x2B:{
+                // SW
 
-                        break;
-                    }
-                    case 0x03:{
-                        // jal
+                break;
+            }
+            case 0x2A:{
+                // SWL
 
-                        break;
-                    }
+                break;
+            }
+            case 0x2E:{
+                // SWR
 
-                    /*********** LOADS ***********/
+                break;
+            }
+            case 0x01:{
+                /*********** MORE BRANCHES ***********/
+                uint32_t RS = getRS(CurrentInstruction);
+                if(RS == 0x01) {
+                    // bgez
+                } else if(RS == 0x11) {
+                    // bgezal
+                } else if(RS == 0x10) {
+                    // bltzal
+                } else {
+                    // bltz
+                }
+            }
+            case 0x00:{
+                uint8_t func = getFunc(CurrentInstruction);
+                switch(func) {
+                    /*********** ARITHMETIC INSTRUCTIONS ***********/
                     case 0x20:{
-                        // LB
-
-                        break;
-                    }
-                    case 0x24:{
-                        // LBU
-
+                        // add
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction); 
+                        uint8_t RD = getRD(CurrentInstruction);
+                        if((RegFile[RT] > 0 && RegFile[RS] > INT_MAX - RegFile[RT])
+                            || (RegFile[RT] < 0 && RegFile[RS] < INT_MIN - RegFile[RT])) {
+                            // TODO Overflow occurs
+                            break;
+                        }
+                        int32_t sum = RegFile[RS] + RegFile[RT];
+                        RegFile[RD] = sum;
                         break;
                     }
                     case 0x21:{
-                        // LH
-
+                        // addu
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction);
+                        uint8_t RD = getRD(CurrentInstruction);
+                        RegFile[RD] = RegFile[RS] + RegFile[RT];
                         break;
                     }
-                    case 0x25:{
-                        // LHU
-
-                        break;
-                    }
-                    case 0x0F:{
-                        // LUI
+                    case 0x22:{
+                        // sub
 
                         break;
                     }
                     case 0x23:{
-                        // LW
+                        // subu
 
                         break;
                     }
-                    case 0x22:{
-                        // LWL
+                    case 0x1A:{
+                        // div
 
+                        break;
+                    }
+                    case 0x1B:{
+                        // divu
+
+                        break;
+                    }
+                    case 0x18:{
+                        // mult
+
+                        break;
+                    }
+                    case 0x19:{
+                        // multu
+
+                        break;
+                    }
+                    case 0x10:{
+                        // mfhi
+
+                        break;
+                    }
+                    case 0x12:{
+                        // mflo
+
+                        break;
+                    }
+                    case 0x11:{
+                        // mthi
+
+                        break;
+                    }
+                    case 0x13:{
+                        // mtlo
+
+                        break;
+                    }
+
+                    /*********** LOGIC INSTRUCTIONS ***********/
+                    case 0x24:{
+                        // and
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction);
+                        uint8_t RD = getRD(CurrentInstruction);
+                        RegFile[RD] = RegFile[RS] & RegFile[RT];
                         break;
                     }
                     case 0x26:{
-                        // LWR
-
+                        // xor
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction);
+                        uint8_t RD = getRD(CurrentInstruction);
+                        RegFile[RD] = RegFile[RS] ^ RegFile[RT];
                         break;
                     }
-
-                    /*********** STORES ***********/
-                    case 0x28:{
-                        // SB
-
+                    case 0x27:{
+                        // nor
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction);
+                        uint8_t RD = getRD(CurrentInstruction);
+                        RegFile[RD] = ~(RegFile[RS] | RegFile[RT]);
                         break;
                     }
-                    case 0x29:{
-                        // SH
-
+                    case 0x25:{
+                        // or
+                        uint8_t RS = getRS(CurrentInstruction);
+                        uint8_t RT = getRT(CurrentInstruction);
+                        uint8_t RD = getRD(CurrentInstruction);
+                        RegFile[RD] = RegFile[RS] | RegFile[RT];
                         break;
                     }
-                    case 0x2B:{
-                        // SW
+                    
+                    /*********** SHIFTS ***********/
+                    case 0x00:{
+                        // sll
+                        if(CurrentInstruction != 0) {
+
+                        } // else NOP
+                        break;
+                    }
+                    case 0x04:{
+                        // sllv
 
                         break;
                     }
                     case 0x2A:{
-                        // SWL
+                        // slt
 
                         break;
                     }
-                    case 0x2E:{
-                        // SWR
+                    case 0x2B:{
+                        // sltu
 
                         break;
                     }
-                    case 0x01:{
-                        /*********** MORE BRANCHES ***********/
-                        uint32_t RS = getRS(CurrentInstruction);
-                        if(RS == 0x01) {
-                            // bgez
-                        } else if(RS == 0x11) {
-                            // bgezal
-                        } else if(RS == 0x10) {
-                            // bltzal
-                        } else {
-                            // bltz
-                        }
+                    case 0x03:{
+                        // sra
+
+                        break;
+                    }
+                    case 0x07:{
+                        // srav
+
+                        break;
+                    }
+                    case 0x02:{
+                        // srl
+
+                        break;
+                    }
+                    case 0x06:{
+                        // srlv
+
+                        break;
+                    }
+                    case 0x09:{
+                        // jalr
+
+                        break;
+                    }
+                    case 0x08:{
+                        // jr
+
+                        break;
+                    }
+                    case 0x0C:{
+                        // syscall
+
+                        break;
                     }
                     default:{
-                        // NOP
+                        // NOP (funcCode not supported)
 
                         break;
                     }
-                } // End opCode switch
+                } // End func switch
                 break;
-            } // End func default
-        } // End func switch
+            } // End opCode == 0
+            default:{
+                // NOP (opCode not supported)
+
+                break;
+            }
+        } // End opCode switch
 
         if(newPC == PC) {
             // No jump/branch instruction has occurred to update PC
             // Default to increment by size of word (4 bytes = 32 bits)
-            PC += 4;
+            newPC += 4;
         }
         PC = newPC;
     } //end fori
@@ -394,5 +451,5 @@ int main(int argc, char * argv[]) {
     //Close file pointers & free allocated Memory
     closeFDT();
     CleanUp();
-    return 1;
+    return 0;
 }

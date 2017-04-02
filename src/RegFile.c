@@ -7,7 +7,7 @@ int32_t RegFile[NUMBER_OF_REGS];
 
 void initRegFile(int32_t val) {
     int i;
-    for(i=0;i<34;i++) {
+    for(i=0;i<NUMBER_OF_REGS;i++) {
         RegFile[i] = val;
     }
 }
