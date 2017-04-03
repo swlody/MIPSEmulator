@@ -4,7 +4,9 @@
  */
 
 // TODO What to do in case of exception?
-// TODO What to do if MaxInstr > #instructions in proram? (and how to detect)
+// TODO What to do if MaxInstr > #instructions in program? (and how to detect)
+// TODO What is syscall SID - just $v0?
+// TODO Check values of opcodes and func codes
 
 #include <inttypes.h>
 #include <limits.h>
@@ -32,7 +34,7 @@ int main(int argc, char * argv[]) {
     int status = 0;
     uint32_t i; 
     uint32_t PC, newPC;
-    uint32_t CurrentInstruction;
+    uint32_t CI; // CI = CurrentInstruction
 
     if(argc < 2) {
         printf("Input argument missing \n");
@@ -40,18 +42,18 @@ int main(int argc, char * argv[]) {
     }
     sscanf(argv[2], "%d", &MaxInst);
 
-    //Open file pointers & initialize Heap & Regsiters
+    // Open file pointers & initialize Heap & Regsiters
     initHeap();
     initFDT();
     initRegFile(0);
     
-    //Load required code portions into Emulator Memory
+    // Load required code portions into Emulator Memory
     status = LoadOSMemory(argv[1]);
     if(status < 0) { 
         return status; 
     }
     
-    //set Global & Stack Pointers for the Emulator
+    // Set Global & Stack Pointers for the Emulator
     // & provide startAddress of Program in Memory to Processor
     write_initialization_vector(exec.GSP, exec.GP, exec.GPC_START);
 
@@ -66,65 +68,51 @@ int main(int argc, char * argv[]) {
     newPC = PC;
     for(i=0; i<MaxInst; i++) {
         DynInstCount++;
-        CurrentInstruction = readWord(PC, false);  
+        CI = readWord(PC, false);  
         printRegFile();
-        uint8_t opCode = getOpcode(CurrentInstruction);
+        uint8_t opCode = opCode(CI);
         switch(opCode) {
             /*********** IMMEDIATE INSTRUCTIONS ***********/
             case 0x08:{
                 // addi
-                uint8_t RS = getRS(CurrentInstruction);
-                uint8_t RT = getRT(CurrentInstruction);
-                int16_t i = getImmediate(CurrentInstruction);
-                if((RegFile[RS] > 0 && i > INT_MAX - RegFile[RS])
-                    || (RegFile[RS] < 0 && i < INT_MIN - RegFile[RS])) {
+                uint8_t RS = RS(CI);
+                int16_t immediate = immediate(CI);
+                if((RegFile[RS] > 0 && immediate > INT_MAX - RegFile[RS])
+                    || (RegFile[RS] < 0 && immediate < INT_MIN - RegFile[RS])) {
                     // TODO Overflow occurs
                     break;
                 }
-                int32_t sum = RegFile[RS] + i;
-                RegFile[RT] = sum;
+                RegFile[RT(CI)] = RegFile[RS] + immediate;
                 break;
             }
             case 0x09:{
                 // addiu
-                uint8_t RS = getRS(CurrentInstruction);
-                int16_t i = getImmediate(CurrentInstruction);
-                uint8_t RD = getRD(CurrentInstruction);
-                RegFile[RD] = RegFile[RS] + i;
+                RegFile[RD(CI)] = RegFile[RS(CI)] + immediate(CI);
                 break;
             }
             case 0x0C:{
                 // andi
-                uint8_t RS = getRS(CurrentInstruction);
-                int16_t i = getImmediate(CurrentInstruction);
-                uint8_t RD = getRD(CurrentInstruction);
-                RegFile[RD] = RegFile[RS] & zeroExtend(i);
+                RegFile[RD(CI)] = RegFile[RS(CI)] & zeroExtend(immediate(CI));
                 break;
             }
             case 0x0E:{
                 // xori
-                uint8_t RS = getRS(CurrentInstruction);
-                int16_t i = getImmediate(CurrentInstruction);
-                uint8_t RD = getRD(CurrentInstruction);
-                RegFile[RD] = RegFile[RS] ^ zeroExtend(i);
+                RegFile[RD(CI)] = RegFile[RS(CI)] ^ zeroExtend(immediate(CI));
                 break;
             }
             case 0x0D:{
                 // ori
-                uint8_t RS = getRS(CurrentInstruction);
-                int16_t i = getImmediate(CurrentInstruction);
-                uint8_t RD = getRD(CurrentInstruction);
-                RegFile[RD] = RegFile[RS] | zeroExtend(i);
+                RegFile[RD(CI)] = RegFile[RS(CI)] | zeroExtend(immediate(CI));
                 break;
             }
             case 0x0A:{
                 // slti
-
+                RegFile[RT(CI)] = RegFile[RS(CI)] < signExtend(immediate(CI));
                 break;
             }
             case 0x0B:{
                 // sltiu
-
+                RegFile[RT(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) signExtend(immediate(CI));
                 break;
             }
 
@@ -245,7 +233,7 @@ int main(int argc, char * argv[]) {
             }
             case 0x01:{
                 /*********** MORE BRANCHES ***********/
-                uint32_t RS = getRS(CurrentInstruction);
+                uint32_t RS = RS(CI);
                 if(RS == 0x01) {
                     // bgez
                 } else if(RS == 0x11) {
@@ -253,33 +241,28 @@ int main(int argc, char * argv[]) {
                 } else if(RS == 0x10) {
                     // bltzal
                 } else {
-                    // bltz
+                    // bltz or RS not valid
                 }
             }
             case 0x00:{
-                uint8_t func = getFunc(CurrentInstruction);
+                uint8_t func = funcCode(CI);
                 switch(func) {
                     /*********** ARITHMETIC INSTRUCTIONS ***********/
                     case 0x20:{
                         // add
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction); 
-                        uint8_t RD = getRD(CurrentInstruction);
+                        uint8_t RS = RS(CI);
+                        uint8_t RT = RT(CI); 
                         if((RegFile[RT] > 0 && RegFile[RS] > INT_MAX - RegFile[RT])
                             || (RegFile[RT] < 0 && RegFile[RS] < INT_MIN - RegFile[RT])) {
                             // TODO Overflow occurs
                             break;
                         }
-                        int32_t sum = RegFile[RS] + RegFile[RT];
-                        RegFile[RD] = sum;
+                        RegFile[RD(CI)] = RegFile[RS] + RegFile[RT];
                         break;
                     }
                     case 0x21:{
                         // addu
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction);
-                        uint8_t RD = getRD(CurrentInstruction);
-                        RegFile[RD] = RegFile[RS] + RegFile[RT];
+                        RegFile[RD(CI)] = RegFile[RS(CI)] + RegFile[RT(CI)];
                         break;
                     }
                     case 0x22:{
@@ -336,43 +319,31 @@ int main(int argc, char * argv[]) {
                     /*********** LOGIC INSTRUCTIONS ***********/
                     case 0x24:{
                         // and
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction);
-                        uint8_t RD = getRD(CurrentInstruction);
-                        RegFile[RD] = RegFile[RS] & RegFile[RT];
+                        RegFile[RD(CI)] = RegFile[RS(CI)] & RegFile[RT(CI)];
                         break;
                     }
                     case 0x26:{
                         // xor
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction);
-                        uint8_t RD = getRD(CurrentInstruction);
-                        RegFile[RD] = RegFile[RS] ^ RegFile[RT];
+                        RegFile[RD(CI)] = RegFile[RS(CI)] ^ RegFile[RT(CI)];
                         break;
                     }
                     case 0x27:{
                         // nor
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction);
-                        uint8_t RD = getRD(CurrentInstruction);
-                        RegFile[RD] = ~(RegFile[RS] | RegFile[RT]);
+                        RegFile[RD(CI)] = ~(RegFile[RS(CI)] | RegFile[RT(CI)]);
                         break;
                     }
                     case 0x25:{
                         // or
-                        uint8_t RS = getRS(CurrentInstruction);
-                        uint8_t RT = getRT(CurrentInstruction);
-                        uint8_t RD = getRD(CurrentInstruction);
-                        RegFile[RD] = RegFile[RS] | RegFile[RT];
+                        RegFile[RD(CI)] = RegFile[RS(CI)] | RegFile[RT(CI)];
                         break;
                     }
                     
                     /*********** SHIFTS ***********/
                     case 0x00:{
                         // sll
-                        if(CurrentInstruction != 0) {
+                        if(CI != 0) {
 
-                        } // else NOP
+                        } // else NOP (intentional)
                         break;
                     }
                     case 0x04:{
@@ -382,12 +353,12 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x2A:{
                         // slt
-
+                        RegFile[RD(CI)] = RegFile[RS(CI)] < RegFile[RT(CI)];
                         break;
                     }
                     case 0x2B:{
                         // sltu
-
+                        RegFile[RD(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) RegFile[RT(CI)];
                         break;
                     }
                     case 0x03:{
@@ -422,21 +393,16 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x0C:{
                         // syscall
-
+                        SyscallExe(/*SID???*/);
                         break;
                     }
                     default:{
-                        // NOP (funcCode not supported)
-
-                        break;
+                        // NOP (funcCode not supported or invalid)
                     }
                 } // End func switch
-                break;
             } // End opCode == 0
             default:{
-                // NOP (opCode not supported)
-
-                break;
+                // NOP (opCode not supported or invalid)
             }
         } // End opCode switch
 
@@ -446,10 +412,10 @@ int main(int argc, char * argv[]) {
             newPC += 4;
         }
         PC = newPC;
-    } //end fori
+    } // End program loop
     
-    //Close file pointers & free allocated Memory
+    // Close file pointers & free allocated Memory
     closeFDT();
     CleanUp();
-    return 0;
+    return 1;
 }
