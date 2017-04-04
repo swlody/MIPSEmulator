@@ -43,5 +43,5 @@ uint32_t zeroExtend(int16_t value) {
 }
 
 uint32_t instr_index(uint32_t instr) {
-    return ((instr << 6) >> 6) & 0x3FFFFFF;
+    return instr & 0x3FFFFFF;
 }

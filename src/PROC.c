@@ -3,9 +3,6 @@
  * CSC 252 - Project 3
  */
 
-// TODO What to do in case of exception?
-// TODO What to do if MaxInstr > #instructions in program? (and how to detect)
-// TODO What is syscall SID - just $v0?
 // TODO Check values of opcodes and func codes
 
 #include <inttypes.h>
@@ -65,24 +62,190 @@ int main(int argc, char * argv[]) {
     printf("\n ----- Execute Program ----- \n");
     printf("Max Instruction to run = %d \n", MaxInst);
     PC = exec.GPC_START;
-    newPC = PC;
+    int branch = 0;
     for(i=0; i<MaxInst; i++) {
         DynInstCount++;
         CI = readWord(PC, false);  
         printRegFile();
-        uint8_t opCode = opCode(CI);
-        switch(opCode) {
+        uint8_t op = opCode(CI);
+        switch(op) {
+            case 0x00:{
+                if(CI == 0) {
+                    // NOP (intentional)
+                    break;
+                }
+                uint8_t func = funcCode(CI);
+                switch(func) {
+                    /*********** ARITHMETIC INSTRUCTIONS ***********/
+                    case 0x20:{
+                        // add
+                        uint8_t source = RS(CI);
+                        uint8_t adder = RT(CI); 
+                        if((RegFile[adder] > 0 && RegFile[source] > INT_MAX - RegFile[adder])
+                            || (RegFile[adder] < 0 && RegFile[source] < INT_MIN - RegFile[adder])) {
+                            printf("Unexpected behavior. Value overflow.\n");
+                        }
+                        RegFile[RD(CI)] = RegFile[source] + RegFile[adder];
+                        break;
+                    }
+                    case 0x21:{
+                        // addu
+                        RegFile[RD(CI)] = RegFile[RS(CI)] + RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x22:{
+                        // sub
+                        uint8_t source = RS(CI);
+                        uint8_t subber = RT(CI);
+                        // TODO Check this
+                        if((RegFile[source] > 0 && RegFile[subber] < INT_MIN + RegFile[source])
+                            || (RegFile[source] < 0 && RegFile[subber] > INT_MAX - RegFile[source])) {
+                            printf("Unexpected behavior. Value overflow.\n");
+                        }
+                        RegFile[RD(CI)] = RegFile[source] - RegFile[subber];
+                        break;
+                    }
+                    case 0x23:{
+                        // subu
+                        RegFile[RD(CI)] = RegFile[RS(CI)] - RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x1A:{
+                        // div
+
+                        break;
+                    }
+                    case 0x1B:{
+                        // divu
+
+                        break;
+                    }
+                    case 0x18:{
+                        // mult
+
+                        break;
+                    }
+                    case 0x19:{
+                        // multu
+
+                        break;
+                    }
+                    case 0x10:{
+                        // mfhi
+
+                        break;
+                    }
+                    case 0x12:{
+                        // mflo
+
+                        break;
+                    }
+                    case 0x11:{
+                        // mthi
+
+                        break;
+                    }
+                    case 0x13:{
+                        // mtlo
+
+                        break;
+                    }
+
+                    /*********** LOGIC INSTRUCTIONS ***********/
+                    case 0x24:{
+                        // and
+                        RegFile[RD(CI)] = RegFile[RS(CI)] & RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x26:{
+                        // xor
+                        RegFile[RD(CI)] = RegFile[RS(CI)] ^ RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x27:{
+                        // nor
+                        RegFile[RD(CI)] = ~(RegFile[RS(CI)] | RegFile[RT(CI)]);
+                        break;
+                    }
+                    case 0x25:{
+                        // or
+                        RegFile[RD(CI)] = RegFile[RS(CI)] | RegFile[RT(CI)];
+                        break;
+                    }
+                    
+                    /*********** SHIFTS ***********/
+                    case 0x00:{
+                        // sll
+                        RegFile[RD(CI)] = RegFile[RT(CI)] << SA(CI);
+                        break;
+                    }
+                    case 0x04:{
+                        // sllv
+                        uint8_t shamt = RegFile[RS(CI)] & 0x1F;
+                        RegFile[RD(CI)] = RegFile[RT(CI)] << shamt;
+                        break;
+                    }
+                    case 0x2A:{
+                        // slt
+                        RegFile[RD(CI)] = RegFile[RS(CI)] < RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x2B:{
+                        // sltu
+                        RegFile[RD(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) RegFile[RT(CI)];
+                        break;
+                    }
+                    case 0x03:{
+                        // sra
+                        RegFile[RD(CI)] = RegFile[RT(CI)] >> SA(CI);
+                        break;
+                    }
+                    case 0x07:{
+                        // srav
+                        uint8_t shamt = RegFile[RS(CI)] & 0x1F;
+                        RegFile[RD(CI)] = RegFile[RT(CI)] >> shamt;
+                        break;
+                    }
+                    case 0x02:{
+                        // srl
+                        break;
+                    }
+                    case 0x06:{
+                        // srlv
+
+                        break;
+                    }
+                    case 0x09:{
+                        // jalr
+
+                        break;
+                    }
+                    case 0x08:{
+                        // jr
+
+                        break;
+                    }
+                    case 0x0C:{
+                        // syscall
+                        SyscallExe(RegFile[2]);
+                        break;
+                    }
+                    default:{
+                        printf("Function code %u not supported or invalid.\n", func);
+                    }
+                } // End func switch
+            } // End opCode == 0
+
             /*********** IMMEDIATE INSTRUCTIONS ***********/
             case 0x08:{
                 // addi
-                uint8_t RS = RS(CI);
-                int16_t immediate = immediate(CI);
-                if((RegFile[RS] > 0 && immediate > INT_MAX - RegFile[RS])
-                    || (RegFile[RS] < 0 && immediate < INT_MIN - RegFile[RS])) {
-                    // TODO Overflow occurs
-                    break;
+                uint8_t source = RS(CI);
+                int16_t imm = immediate(CI);
+                if((RegFile[source] > 0 && imm > INT_MAX - RegFile[source])
+                    || (RegFile[source] < 0 && imm < INT_MIN - RegFile[source])) {
+                    printf("Unexpected behavior. Value overflow.\n");
                 }
-                RegFile[RT(CI)] = RegFile[RS] + immediate;
+                RegFile[RT(CI)] = RegFile[source] + imm;
                 break;
             }
             case 0x09:{
@@ -154,12 +317,25 @@ int main(int argc, char * argv[]) {
             }
             case 0x02:{
                 // j
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                newPC = ((PC + 4) & ~0x3) & (instr_index(CI) << 2);
+                branch = 1;
                 break;
             }
             case 0x03:{
                 // jal
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                RegFile[31] = PC + 8;
+                newPC = ((PC + 4) & ~0x3) & (instr_index(CI) << 2);
+                branch = 1;
                 break;
             }
 
@@ -233,185 +409,34 @@ int main(int argc, char * argv[]) {
             }
             case 0x01:{
                 /*********** MORE BRANCHES ***********/
-                uint32_t RS = RS(CI);
-                if(RS == 0x01) {
+                uint32_t REGIMM = RT(CI);
+                if(REGIMM == 0x01) {
                     // bgez
-                } else if(RS == 0x11) {
+                } else if(REGIMM == 0x11) {
                     // bgezal
-                } else if(RS == 0x10) {
+                } else if(REGIMM == 0x10) {
                     // bltzal
+                } else if(REGIMM == 0x00) {
+                    // bltz
                 } else {
-                    // bltz or RS not valid
+                    printf("Invalid REGIMM %u for opCode 0x01\n", REGIMM);
                 }
+                break;
             }
-            case 0x00:{
-                uint8_t func = funcCode(CI);
-                switch(func) {
-                    /*********** ARITHMETIC INSTRUCTIONS ***********/
-                    case 0x20:{
-                        // add
-                        uint8_t RS = RS(CI);
-                        uint8_t RT = RT(CI); 
-                        if((RegFile[RT] > 0 && RegFile[RS] > INT_MAX - RegFile[RT])
-                            || (RegFile[RT] < 0 && RegFile[RS] < INT_MIN - RegFile[RT])) {
-                            // TODO Overflow occurs
-                            break;
-                        }
-                        RegFile[RD(CI)] = RegFile[RS] + RegFile[RT];
-                        break;
-                    }
-                    case 0x21:{
-                        // addu
-                        RegFile[RD(CI)] = RegFile[RS(CI)] + RegFile[RT(CI)];
-                        break;
-                    }
-                    case 0x22:{
-                        // sub
-
-                        break;
-                    }
-                    case 0x23:{
-                        // subu
-
-                        break;
-                    }
-                    case 0x1A:{
-                        // div
-
-                        break;
-                    }
-                    case 0x1B:{
-                        // divu
-
-                        break;
-                    }
-                    case 0x18:{
-                        // mult
-
-                        break;
-                    }
-                    case 0x19:{
-                        // multu
-
-                        break;
-                    }
-                    case 0x10:{
-                        // mfhi
-
-                        break;
-                    }
-                    case 0x12:{
-                        // mflo
-
-                        break;
-                    }
-                    case 0x11:{
-                        // mthi
-
-                        break;
-                    }
-                    case 0x13:{
-                        // mtlo
-
-                        break;
-                    }
-
-                    /*********** LOGIC INSTRUCTIONS ***********/
-                    case 0x24:{
-                        // and
-                        RegFile[RD(CI)] = RegFile[RS(CI)] & RegFile[RT(CI)];
-                        break;
-                    }
-                    case 0x26:{
-                        // xor
-                        RegFile[RD(CI)] = RegFile[RS(CI)] ^ RegFile[RT(CI)];
-                        break;
-                    }
-                    case 0x27:{
-                        // nor
-                        RegFile[RD(CI)] = ~(RegFile[RS(CI)] | RegFile[RT(CI)]);
-                        break;
-                    }
-                    case 0x25:{
-                        // or
-                        RegFile[RD(CI)] = RegFile[RS(CI)] | RegFile[RT(CI)];
-                        break;
-                    }
-                    
-                    /*********** SHIFTS ***********/
-                    case 0x00:{
-                        // sll
-                        if(CI != 0) {
-
-                        } // else NOP (intentional)
-                        break;
-                    }
-                    case 0x04:{
-                        // sllv
-
-                        break;
-                    }
-                    case 0x2A:{
-                        // slt
-                        RegFile[RD(CI)] = RegFile[RS(CI)] < RegFile[RT(CI)];
-                        break;
-                    }
-                    case 0x2B:{
-                        // sltu
-                        RegFile[RD(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) RegFile[RT(CI)];
-                        break;
-                    }
-                    case 0x03:{
-                        // sra
-
-                        break;
-                    }
-                    case 0x07:{
-                        // srav
-
-                        break;
-                    }
-                    case 0x02:{
-                        // srl
-
-                        break;
-                    }
-                    case 0x06:{
-                        // srlv
-
-                        break;
-                    }
-                    case 0x09:{
-                        // jalr
-
-                        break;
-                    }
-                    case 0x08:{
-                        // jr
-
-                        break;
-                    }
-                    case 0x0C:{
-                        // syscall
-                        SyscallExe(/*SID???*/);
-                        break;
-                    }
-                    default:{
-                        // NOP (funcCode not supported or invalid)
-                    }
-                } // End func switch
-            } // End opCode == 0
             default:{
-                // NOP (opCode not supported or invalid)
+                printf("Op code %u not supported or invalid.", opCode);
             }
         } // End opCode switch
 
-        if(newPC == PC) {
-            // No jump/branch instruction has occurred to update PC
-            // Default to increment by size of word (4 bytes = 32 bits)
-            newPC += 4;
+        if(branch == 2) {
+            // Full instruction complete since previous instruction's branch
+            PC = newPC;
+            branch = 0;
+        } else {
+            // If branch == 1 set to 2, else keep 0
+            branch *= 2;
+            PC += 4;
         }
-        PC = newPC;
     } // End program loop
     
     // Close file pointers & free allocated Memory
