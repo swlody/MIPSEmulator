@@ -222,21 +222,50 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x02:{
                         // srl
+                        uint8_t s = SA(CI);
+                        if(s == 0) {
+                            RegFile[RD(CI)] = RegFile[RT(CI)];
+                        } else {
+                            RegFile[RD(CI)] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                        }
                         break;
                     }
                     case 0x06:{
                         // srlv
-
+                        uint8_t s = RegFile[RS(CI)];
+                        if(s == 0) {
+                            RegFile[RD(CI)] = RegFile[RT(CI)];
+                        } else {
+                            RegFile[RD(CI)] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                        }
                         break;
                     }
                     case 0x09:{
                         // jalr
-
+                        if(branch == 1) {
+                            printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                            printf("Exiting");
+                            return -1;
+                        }
+                        uint8_t dest = RD(CI);
+                        if(dest == 0) {
+                            RegFile[31] = PC + 8;
+                        } else {
+                            RegFile[dest] = PC + 8;
+                        }
+                        newPC = RegFile[RS(CI)];
+                        branch = 1;
                         break;
                     }
                     case 0x08:{
                         // jr
-
+                        if(branch == 1) {
+                            printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                            printf("Exiting");
+                            return -1;
+                        }
+                        newPC = RegFile[RS(CI)];
+                        branch = 1;
                         break;
                     }
                     case 0x0C:{
