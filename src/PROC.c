@@ -112,50 +112,56 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x1A:{
                         // div
-                        printf("Divide\n");
                         int32_t dividend = RegFile[RS(CI)];
                         int32_t divisor = RegFile[RT(CI)];
-                        printf("Dividend: %d\n", dividend);
-                        printf("Divisor: %d\n", divisor);
                         RegFile[32] = (int32_t) (dividend / divisor);
                         RegFile[33] = dividend % divisor;
-                        printf("Quotient: %d\n", RegFile[32]);
-                        printf("Remainder: %d\n", RegFile[33]);
                         break;
                     }
                     case 0x1B:{
                         // divu
-
+                        uint32_t dividend = (uint32_t) RegFile[RS(CI)];
+                        uint32_t divisor = (uint32_t) RegFile[RT(CI)];
+                        RegFile[32] = (int32_t) (dividend / divisor);
+                        RegFile[33] = (int32_t) (dividend % divisor);
                         break;
                     }
                     case 0x18:{
                         // mult
-
+                        int64_t multiplicand = (int64_t) RegFile[RS(CI)];
+                        int64_t multiplier = (int64_t) RegFile[RT(CI)];
+                        int64_t result = multiplier * multiplicand;
+                        RegFile[32] = (int32_t) (result & 0xFFFFFFFF);
+                        RegFile[33] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
                         break;
                     }
                     case 0x19:{
                         // multu
-
+                        uint64_t multiplicand = (uint64_t) RegFile[RS(CI)];
+                        uint64_t multiplier = (uint64_t) RegFile[RT(CI)];
+                        int64_t result = multiplier * multiplicand;
+                        RegFile[32] = (int32_t) (result & 0xFFFFFFFF);
+                        RegFile[33] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
                         break;
                     }
                     case 0x10:{
                         // mfhi
-
+                        RegFile[RD(CI)] = RegFile[33];
                         break;
                     }
                     case 0x12:{
                         // mflo
-
+                        RegFile[RD(CI)] = RegFile[32];
                         break;
                     }
                     case 0x11:{
                         // mthi
-
+                        RegFile[33] = RegFile[RS(CI)];
                         break;
                     }
                     case 0x13:{
                         // mtlo
-
+                        RegFile[32] = RegFile[RD(CI)];
                         break;
                     }
 
@@ -239,7 +245,7 @@ int main(int argc, char * argv[]) {
                         break;
                     }
                     default:{
-                        printf("Function code %u not supported or invalid.\n", func);
+                        printf("Function code %" PRIu8 " not supported or invalid.\n", func);
                     }
                 } // End func switch
             } // End opCode == 0
@@ -432,7 +438,7 @@ int main(int argc, char * argv[]) {
                 break;
             }
             default:{
-                printf("Op code %u not supported or invalid.", opCode);
+                printf("Op code %" PRIu8 " not supported or invalid.", opCode);
             }
         } // End opCode switch
 
