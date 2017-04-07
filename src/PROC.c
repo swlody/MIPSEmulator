@@ -325,37 +325,99 @@ int main(int argc, char * argv[]) {
             /*********** BRANCHES AND JUMPS ***********/
             case 0x04:{
                 // beq
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] == RegFile[RT(CI)]) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                }
                 break;
             }
             case 0x14:{
                 // beql
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] == RegFile[RT(CI)]) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                } else {
+                    PC += 4;
+                }
                 break;
             }
             case 0x07:{
                 // bgtz
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] > 0) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                }
                 break;
             }
             case 0x06:{
                 // blez
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] <= 0) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                }
                 break;
             }
             case 0x16:{
                 // blezl
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] <= 0) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                } else {
+                    PC += 4;
+                }
                 break;
             }
             case 0x05:{
                 // bne
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] != RegFile[RT(CI)]) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                }
                 break;
             }
             case 0x15:{
                 // bnel
-
+                if(branch == 1) {
+                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Exiting");
+                    return -1;
+                }
+                if(RegFile[RS(CI)] != RegFile[RT(CI)]) {
+                    newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                    branch = 1;
+                } else {
+                    PC += 4;
+                }
                 break;
             }
             case 0x02:{
