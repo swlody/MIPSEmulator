@@ -1,4 +1,4 @@
-/*
+`/*
  * Ari Geller & Sam Wlody
  * CSC 252 - Project 3
  */
@@ -54,7 +54,7 @@ int main(int argc, char * argv[]) {
     // & provide startAddress of Program in Memory to Processor
     write_initialization_vector(exec.GSP, exec.GP, exec.GPC_START);
 
-    // char* RegNames[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+    // char* RegName[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
     //     "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
     //     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
     //     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra", "LO", "HI"};
@@ -447,12 +447,12 @@ int main(int argc, char * argv[]) {
             /*********** LOADS ***********/
             case 0x20:{
                 // LB
-
+                RegFile[RT] = signExtend(readByte(RegFile[base(CI)] + signExtend(offset(CI)), false));
                 break;
             }
             case 0x24:{
                 // LBU
-
+                RegFile[RT] = zeroExtend(readByte(RegFile[base(CI)] + zeroExtend(offset(CI)), false));
                 break;
             }
             case 0x21:{
@@ -472,7 +472,7 @@ int main(int argc, char * argv[]) {
             }
             case 0x23:{
                 // LW
-
+                RegFile[RT] = signExtend(readWord(RegFile[base(CI)] + signExtend(offset(CI)), false));
                 break;
             }
             case 0x22:{
@@ -489,7 +489,7 @@ int main(int argc, char * argv[]) {
             /*********** STORES ***********/
             case 0x28:{
                 // SB
-
+                writeByte(signExtend(offset(CI)) + RegFile[base(CI)], (uint8_t) RegFile[RT(CI)], false);
                 break;
             }
             case 0x29:{
@@ -499,7 +499,7 @@ int main(int argc, char * argv[]) {
             }
             case 0x2B:{
                 // SW
-
+                writeWord(signExtend(offset(CI)) + RegFile[base(CI)], (uint32_t) RegFile[RT(CI)], false);
                 break;
             }
             case 0x2A:{
