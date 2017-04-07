@@ -3,3 +3,4 @@ tests/*
 eMIPS
 stderr.txt
 stdout.txt
+*.DS_Store

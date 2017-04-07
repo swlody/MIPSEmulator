@@ -57,7 +57,7 @@ int main(int argc, char * argv[]) {
     // char* RegNames[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
     //     "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
     //     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
-    //     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"};
+    //     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra", "LO", "HI"};
 
     printf("\n ----- Execute Program ----- \n");
     printf("Max Instruction to run = %d \n", MaxInst);
@@ -112,7 +112,15 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x1A:{
                         // div
-
+                        printf("Divide\n");
+                        int32_t dividend = RegFile[RS(CI)];
+                        int32_t divisor = RegFile[RT(CI)];
+                        printf("Dividend: %d\n", dividend);
+                        printf("Divisor: %d\n", divisor);
+                        RegFile[32] = (int32_t) (dividend / divisor);
+                        RegFile[33] = dividend % divisor;
+                        printf("Quotient: %d\n", RegFile[32]);
+                        printf("Remainder: %d\n", RegFile[33]);
                         break;
                     }
                     case 0x1B:{
