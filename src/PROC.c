@@ -457,32 +457,60 @@ int main(int argc, char * argv[]) {
             }
             case 0x21:{
                 // LH
-
+                int16_t off = offset(CI);
+                if(off % 2 != 0) {
+                    printf("Offset not aligned with word boundary.\n");
+                }
+                RegFile[RT] = readWord(RegFile[base(CI)] + signExtend(off), false) >> 16;
                 break;
             }
             case 0x25:{
                 // LHU
-
+                int16_t off = offset(CI);
+                if(off % 2 != 0) {
+                    printf("Offset not aligned with word boundary.\n");
+                }
+                RegFile[RT] = (readWord(RegFile[base(CI)] + signExtend(off), false) >> 16) & 0xFFFF;
                 break;
             }
             case 0x0F:{
                 // LUI
-
+                RegFile[RT] = ((int32_t) immediate(CI)) << 16;
                 break;
             }
             case 0x23:{
                 // LW
-                RegFile[RT] = signExtend(readWord(RegFile[base(CI)] + signExtend(offset(CI)), false));
+                int16_t off = offset(CI);
+                if(off % 4 != 0) {
+                    printf("Offset not aligned with word boundary.\n");
+                }
+                RegFile[RT] = signExtend(readWord(RegFile[base(CI)] + signExtend(off), false));
                 break;
             }
             case 0x22:{
                 // LWL
-
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint8_t rt = RT(CI);
+                int off = 24;
+                do {
+                    RegFile[RT] &= ~(0xFF << off);
+                    RegFile[RT] |= (readByte(addr, false) << off);
+                    off -= 8;
+                    addr++;
+                } while(addr % 4 != 0);
                 break;
             }
             case 0x26:{
                 // LWR
-
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint8_t rt = RT(CI);
+                int off = 0;
+                do {
+                    RegFile[RT] &= ~(0xFF << off);
+                    RegFile[RT] |= (readByte(addr, false) << off);
+                    off += 8;
+                    addr--;
+                } while(addr % 4 != 3);
                 break;
             }
 
@@ -494,22 +522,51 @@ int main(int argc, char * argv[]) {
             }
             case 0x29:{
                 // SH
-
+                int16_t off = offset(CI);
+                if(off % 2 != 0) {
+                    printf("Offset not aligned with word boundary.\n");
+                }
+                writeWord(signExtend(off) + RegFile[base(CI)], RegFile[RT(CI)] & 0xFFFF, false);
                 break;
             }
             case 0x2B:{
                 // SW
-                writeWord(signExtend(offset(CI)) + RegFile[base(CI)], (uint32_t) RegFile[RT(CI)], false);
+                int16_t off = offset(CI);
+                if(off % 4 != 0) {
+                    printf("Offset not aligned with word boundary.\n");
+                }
+                writeWord(signExtend(off) + RegFile[base(CI)], (uint32_t) RegFile[RT(CI)], false);
                 break;
             }
             case 0x2A:{
                 // SWL
-
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint8_t rt = RT(CI);
+                int off = 24;
+                do {
+                    int32_t result = RegFile[RT];
+                    result >>= off;
+                    result &= 0xFF;
+                    writeByte(addr, result, false);
+                    off -= 8;
+                    addr++;
+                } while(addr % 4 != 0);
                 break;
             }
             case 0x2E:{
                 // SWR
-
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint8_t rt = RT(CI);
+                int off = 0;
+                do {
+                    int32_t result = RegFile[RT];
+                    result &= (0xFF & off);
+                    result >>= off;
+                    result &= 0xFF;
+                    writeByte(addr, result, false);
+                    off += 8;
+                    addr--;
+                } while(addr % 4 != 3);
                 break;
             }
             case 0x01:{
@@ -526,7 +583,6 @@ int main(int argc, char * argv[]) {
                         newPC = PC + 4 + (signExtend(offset(CI)) << 2);
                         branch = 1;
                     }
-                break;
                 } else if(REGIMM == 0x11) {
                     // bgezal
                     if(branch == 1) {
