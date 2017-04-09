@@ -517,12 +517,51 @@ int main(int argc, char * argv[]) {
                 uint32_t REGIMM = RT(CI);
                 if(REGIMM == 0x01) {
                     // bgez
+                    if(branch == 1) {
+                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Exiting");
+                        return -1;
+                    }
+                    if(RegFile[RS(CI)] >= 0) {
+                        newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                        branch = 1;
+                    }
+                break;
                 } else if(REGIMM == 0x11) {
                     // bgezal
+                    if(branch == 1) {
+                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Exiting");
+                        return -1;
+                    }
+                    if(RegFile[RS(CI)] == 0) {
+                        newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                        RegFile[31] = PC + 8;
+                        branch = 1;
+                    }
                 } else if(REGIMM == 0x10) {
                     // bltzal
+                    if(branch == 1) {
+                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Exiting");
+                        return -1;
+                    }
+                    if(RegFile[RS(CI)] < 0) {
+                        newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                        RegFile[31] = PC + 8;
+                        branch = 1;
+                    }
                 } else if(REGIMM == 0x00) {
                     // bltz
+                    if(branch == 1) {
+                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Exiting");
+                        return -1;
+                    }
+                    if(RegFile[RS(CI)] < 0) {
+                        newPC = PC + 4 + (signExtend(offset(CI)) << 2);
+                        branch = 1;
+                    }
                 } else {
                     printf("Invalid REGIMM %u for opCode 0x01\n", REGIMM);
                 }
