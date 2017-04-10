@@ -1,4 +1,4 @@
-`/*
+/*
  * Ari Geller & Sam Wlody
  * CSC 252 - Project 3
  */
@@ -54,10 +54,10 @@ int main(int argc, char * argv[]) {
     // & provide startAddress of Program in Memory to Processor
     write_initialization_vector(exec.GSP, exec.GP, exec.GPC_START);
 
-    // char* RegName[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
-    //     "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
-    //     "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
-    //     "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra", "LO", "HI"};
+    // char* RegName[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", 
+    //     "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", 
+    //     "$t7", "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", 
+    //     "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra", "LO", "HI"};
 
     printf("\n ----- Execute Program ----- \n");
     printf("Max Instruction to run = %d \n", MaxInst);
@@ -244,7 +244,7 @@ int main(int argc, char * argv[]) {
                         // jalr
                         if(branch == 1) {
                             printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                            printf("Exiting");
+                            printf("Exiting\n");
                             return -1;
                         }
                         uint8_t dest = RD(CI);
@@ -261,7 +261,7 @@ int main(int argc, char * argv[]) {
                         // jr
                         if(branch == 1) {
                             printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                            printf("Exiting");
+                            printf("Exiting\n");
                             return -1;
                         }
                         newPC = RegFile[RS(CI)];
@@ -327,7 +327,7 @@ int main(int argc, char * argv[]) {
                 // beq
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] == RegFile[RT(CI)]) {
@@ -340,7 +340,7 @@ int main(int argc, char * argv[]) {
                 // beql
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] == RegFile[RT(CI)]) {
@@ -355,7 +355,7 @@ int main(int argc, char * argv[]) {
                 // bgtz
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] > 0) {
@@ -368,7 +368,7 @@ int main(int argc, char * argv[]) {
                 // blez
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] <= 0) {
@@ -381,7 +381,7 @@ int main(int argc, char * argv[]) {
                 // blezl
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] <= 0) {
@@ -396,7 +396,7 @@ int main(int argc, char * argv[]) {
                 // bne
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] != RegFile[RT(CI)]) {
@@ -409,7 +409,7 @@ int main(int argc, char * argv[]) {
                 // bnel
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 if(RegFile[RS(CI)] != RegFile[RT(CI)]) {
@@ -424,7 +424,7 @@ int main(int argc, char * argv[]) {
                 // j
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 newPC = ((PC + 4) & ~0x3) & (instr_index(CI) << 2);
@@ -435,7 +435,7 @@ int main(int argc, char * argv[]) {
                 // jal
                 if(branch == 1) {
                     printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                    printf("Exiting");
+                    printf("Exiting\n");
                     return -1;
                 }
                 RegFile[31] = PC + 8;
@@ -447,12 +447,12 @@ int main(int argc, char * argv[]) {
             /*********** LOADS ***********/
             case 0x20:{
                 // LB
-                RegFile[RT] = signExtend(readByte(RegFile[base(CI)] + signExtend(offset(CI)), false));
+                RegFile[RT(CI)] = signExtend(readByte(RegFile[base(CI)] + signExtend(offset(CI)), false));
                 break;
             }
             case 0x24:{
                 // LBU
-                RegFile[RT] = zeroExtend(readByte(RegFile[base(CI)] + zeroExtend(offset(CI)), false));
+                RegFile[RT(CI)] = zeroExtend(readByte(RegFile[base(CI)] + zeroExtend(offset(CI)), false));
                 break;
             }
             case 0x21:{
@@ -461,7 +461,7 @@ int main(int argc, char * argv[]) {
                 if(off % 2 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT] = readWord(RegFile[base(CI)] + signExtend(off), false) >> 16;
+                RegFile[RT(CI)] = readWord(RegFile[base(CI)] + signExtend(off), false) >> 16;
                 break;
             }
             case 0x25:{
@@ -470,12 +470,12 @@ int main(int argc, char * argv[]) {
                 if(off % 2 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT] = (readWord(RegFile[base(CI)] + signExtend(off), false) >> 16) & 0xFFFF;
+                RegFile[RT(CI)] = (readWord(RegFile[base(CI)] + signExtend(off), false) >> 16) & 0xFFFF;
                 break;
             }
             case 0x0F:{
                 // LUI
-                RegFile[RT] = ((int32_t) immediate(CI)) << 16;
+                RegFile[RT(CI)] = ((int32_t) immediate(CI)) << 16;
                 break;
             }
             case 0x23:{
@@ -484,17 +484,17 @@ int main(int argc, char * argv[]) {
                 if(off % 4 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT] = signExtend(readWord(RegFile[base(CI)] + signExtend(off), false));
+                RegFile[RT(CI)] = signExtend(readWord(RegFile[base(CI)] + signExtend(off), false));
                 break;
             }
             case 0x22:{
                 // LWL
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
                 int off = 24;
                 do {
-                    RegFile[RT] &= ~(0xFF << off);
-                    RegFile[RT] |= (readByte(addr, false) << off);
+                    RegFile[rt] &= ~(0xFF << off);
+                    RegFile[rt] |= (readByte(addr, false) << off);
                     off -= 8;
                     addr++;
                 } while(addr % 4 != 0);
@@ -502,12 +502,12 @@ int main(int argc, char * argv[]) {
             }
             case 0x26:{
                 // LWR
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
                 int off = 0;
                 do {
-                    RegFile[RT] &= ~(0xFF << off);
-                    RegFile[RT] |= (readByte(addr, false) << off);
+                    RegFile[rt] &= ~(0xFF << off);
+                    RegFile[rt] |= (readByte(addr, false) << off);
                     off += 8;
                     addr--;
                 } while(addr % 4 != 3);
@@ -540,11 +540,11 @@ int main(int argc, char * argv[]) {
             }
             case 0x2A:{
                 // SWL
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
                 int off = 24;
                 do {
-                    int32_t result = RegFile[RT];
+                    int32_t result = RegFile[rt];
                     result >>= off;
                     result &= 0xFF;
                     writeByte(addr, result, false);
@@ -555,11 +555,11 @@ int main(int argc, char * argv[]) {
             }
             case 0x2E:{
                 // SWR
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset);
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
                 int off = 0;
                 do {
-                    int32_t result = RegFile[RT];
+                    int32_t result = RegFile[rt];
                     result &= (0xFF & off);
                     result >>= off;
                     result &= 0xFF;
@@ -576,7 +576,7 @@ int main(int argc, char * argv[]) {
                     // bgez
                     if(branch == 1) {
                         printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                        printf("Exiting");
+                        printf("Exiting\n");
                         return -1;
                     }
                     if(RegFile[RS(CI)] >= 0) {
@@ -587,7 +587,7 @@ int main(int argc, char * argv[]) {
                     // bgezal
                     if(branch == 1) {
                         printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                        printf("Exiting");
+                        printf("Exiting\n");
                         return -1;
                     }
                     if(RegFile[RS(CI)] == 0) {
@@ -599,7 +599,7 @@ int main(int argc, char * argv[]) {
                     // bltzal
                     if(branch == 1) {
                         printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                        printf("Exiting");
+                        printf("Exiting\n");
                         return -1;
                     }
                     if(RegFile[RS(CI)] < 0) {
@@ -611,7 +611,7 @@ int main(int argc, char * argv[]) {
                     // bltz
                     if(branch == 1) {
                         printf("Undefined behavior. Branch or jump in branch delay slot.\n");
-                        printf("Exiting");
+                        printf("Exiting\n");
                         return -1;
                     }
                     if(RegFile[RS(CI)] < 0) {
@@ -624,7 +624,7 @@ int main(int argc, char * argv[]) {
                 break;
             }
             default:{
-                printf("Op code %" PRIu8 " not supported or invalid.", opCode);
+                printf("Op code %" PRIu8 " not supported or invalid.\n", op);
             }
         } // End opCode switch
 
