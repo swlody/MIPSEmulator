@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
     }
     sscanf(argv[2], "%d", &MaxInst);
 
-    // Open file pointers & initialize Heap & Regsiters
+    // Open file pointers & initialize Heap & Registers
     initHeap();
     initFDT();
     initRegFile(0);
@@ -84,8 +84,10 @@ int main(int argc, char * argv[]) {
                         if((RegFile[adder] > 0 && RegFile[source] > INT_MAX - RegFile[adder])
                             || (RegFile[adder] < 0 && RegFile[source] < INT_MIN - RegFile[adder])) {
                             printf("Unexpected behavior. Value overflow.\n");
+                            RegFile[RD(CI)] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
+                        } else {
+                            RegFile[RD(CI)] = RegFile[source] + RegFile[adder];
                         }
-                        RegFile[RD(CI)] = RegFile[source] + RegFile[adder];
                         break;
                     }
                     case 0x21:{
@@ -97,12 +99,13 @@ int main(int argc, char * argv[]) {
                         // sub
                         uint8_t source = RS(CI);
                         uint8_t subber = RT(CI);
-                        // TODO Check this
                         if((RegFile[source] > 0 && RegFile[subber] < INT_MIN + RegFile[source])
                             || (RegFile[source] < 0 && RegFile[subber] > INT_MAX - RegFile[source])) {
                             printf("Unexpected behavior. Value overflow.\n");
+                            RegFile[RD(CI)] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
+                        } else {
+                            RegFile[RD(CI)] = RegFile[source] - RegFile[subber];
                         }
-                        RegFile[RD(CI)] = RegFile[source] - RegFile[subber];
                         break;
                     }
                     case 0x23:{
