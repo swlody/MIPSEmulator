@@ -159,7 +159,7 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x13:{
                         // mtlo
-                        RegFile[33] = RegFile[RD(CI)];
+                        RegFile[33] = RegFile[RS(CI)];
                         break;
                     }
 
