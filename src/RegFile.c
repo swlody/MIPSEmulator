@@ -22,7 +22,7 @@ void printRegFile() {
     int j;
     for (j=0; j < NUMBER_OF_REGS; j++) {
         printf("REG[%2d]: 0x%08x (%d)",j,RegFile[j],RegFile[j]);
-        // printf("%s: %d", RegName[j], RegFile[j]);
+        // printf("%s: 0x%08x", RegName[j], RegFile[j]);
         if(j%2==0){
             printf("\t\t");
         }

@@ -159,7 +159,7 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x13:{
                         // mtlo
-                        RegFile[33] = RegFile[RD(CI)];
+                        RegFile[33] = RegFile[RS(CI)];
                         break;
                     }
 
@@ -292,22 +292,22 @@ int main(int argc, char * argv[]) {
             }
             case 0x09:{
                 // addiu
-                RegFile[RD(CI)] = RegFile[RS(CI)] + immediate(CI);
+                RegFile[RT(CI)] = RegFile[RS(CI)] + immediate(CI);
                 break;
             }
             case 0x0C:{
                 // andi
-                RegFile[RD(CI)] = RegFile[RS(CI)] & zeroExtend(immediate(CI));
+                RegFile[RT(CI)] = RegFile[RS(CI)] & zeroExtend(immediate(CI));
                 break;
             }
             case 0x0E:{
                 // xori
-                RegFile[RD(CI)] = RegFile[RS(CI)] ^ zeroExtend(immediate(CI));
+                RegFile[RT(CI)] = RegFile[RS(CI)] ^ zeroExtend(immediate(CI));
                 break;
             }
             case 0x0D:{
                 // ori
-                RegFile[RD(CI)] = RegFile[RS(CI)] | zeroExtend(immediate(CI));
+                RegFile[RT(CI)] = RegFile[RS(CI)] | zeroExtend(immediate(CI));
                 break;
             }
             case 0x0A:{
