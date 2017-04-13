@@ -3,6 +3,7 @@
 
 #define NUMBER_OF_REGS 34
 
+extern char* RegName[NUMBER_OF_REGS];
 extern int32_t RegFile[NUMBER_OF_REGS];
 extern void initRegFile(int32_t val);
 extern void printRegFile();

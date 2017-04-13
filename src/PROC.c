@@ -54,11 +54,6 @@ int main(int argc, char * argv[]) {
     // & provide startAddress of Program in Memory to Processor
     write_initialization_vector(exec.GSP, exec.GP, exec.GPC_START);
 
-    // char* RegName[NUMBER_OF_REGS] = {"$zero", "$at", "$v0", "$v1", "$a0", 
-    //     "$a1", "$a2", "$a3", "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", 
-    //     "$t7", "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", 
-    //     "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra", "LO", "HI"};
-
     printf("\n ----- Execute Program ----- \n");
     printf("Max Instruction to run = %d \n", MaxInst);
     PC = exec.GPC_START;
@@ -80,7 +75,7 @@ int main(int argc, char * argv[]) {
                     case 0x20:{
                         // add
                         uint8_t source = RS(CI);
-                        uint8_t adder = RT(CI); 
+                        uint8_t adder = RT(CI);
                         if((RegFile[adder] > 0 && RegFile[source] > INT_MAX - RegFile[adder])
                             || (RegFile[adder] < 0 && RegFile[source] < INT_MIN - RegFile[adder])) {
                             printf("Unexpected behavior. Value overflow.\n");
@@ -117,16 +112,16 @@ int main(int argc, char * argv[]) {
                         // div
                         int32_t dividend = RegFile[RS(CI)];
                         int32_t divisor = RegFile[RT(CI)];
-                        RegFile[32] = (int32_t) (dividend / divisor);
-                        RegFile[33] = dividend % divisor;
+                        RegFile[33] = (int32_t) (dividend / divisor);
+                        RegFile[32] = dividend % divisor;
                         break;
                     }
                     case 0x1B:{
                         // divu
                         uint32_t dividend = (uint32_t) RegFile[RS(CI)];
                         uint32_t divisor = (uint32_t) RegFile[RT(CI)];
-                        RegFile[32] = (int32_t) (dividend / divisor);
-                        RegFile[33] = (int32_t) (dividend % divisor);
+                        RegFile[33] = (int32_t) (dividend / divisor);
+                        RegFile[32] = (int32_t) (dividend % divisor);
                         break;
                     }
                     case 0x18:{
@@ -134,8 +129,8 @@ int main(int argc, char * argv[]) {
                         int64_t multiplicand = (int64_t) RegFile[RS(CI)];
                         int64_t multiplier = (int64_t) RegFile[RT(CI)];
                         int64_t result = multiplier * multiplicand;
-                        RegFile[32] = (int32_t) (result & 0xFFFFFFFF);
-                        RegFile[33] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
+                        RegFile[33] = (int32_t) (result & 0xFFFFFFFF);
+                        RegFile[32] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
                         break;
                     }
                     case 0x19:{
@@ -143,28 +138,28 @@ int main(int argc, char * argv[]) {
                         uint64_t multiplicand = (uint64_t) RegFile[RS(CI)];
                         uint64_t multiplier = (uint64_t) RegFile[RT(CI)];
                         int64_t result = multiplier * multiplicand;
-                        RegFile[32] = (int32_t) (result & 0xFFFFFFFF);
-                        RegFile[33] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
+                        RegFile[33] = (int32_t) (result & 0xFFFFFFFF);
+                        RegFile[32] = (int32_t) ((result >> 32) & 0xFFFFFFFF);
                         break;
                     }
                     case 0x10:{
                         // mfhi
-                        RegFile[RD(CI)] = RegFile[33];
+                        RegFile[RD(CI)] = RegFile[32];
                         break;
                     }
                     case 0x12:{
                         // mflo
-                        RegFile[RD(CI)] = RegFile[32];
+                        RegFile[RD(CI)] = RegFile[33];
                         break;
                     }
                     case 0x11:{
                         // mthi
-                        RegFile[33] = RegFile[RS(CI)];
+                        RegFile[32] = RegFile[RS(CI)];
                         break;
                     }
                     case 0x13:{
                         // mtlo
-                        RegFile[32] = RegFile[RD(CI)];
+                        RegFile[33] = RegFile[RD(CI)];
                         break;
                     }
 
@@ -280,6 +275,7 @@ int main(int argc, char * argv[]) {
                         printf("Function code %" PRIu8 " not supported or invalid.\n", func);
                     }
                 } // End func switch
+                break;
             } // End opCode == 0
 
             /*********** IMMEDIATE INSTRUCTIONS ***********/
