@@ -74,38 +74,50 @@ int main(int argc, char * argv[]) {
                     /*********** ARITHMETIC INSTRUCTIONS ***********/
                     case 0x20:{
                         // add
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t source = RS(CI);
                         uint8_t adder = RT(CI);
                         if((RegFile[adder] > 0 && RegFile[source] > INT_MAX - RegFile[adder])
                             || (RegFile[adder] < 0 && RegFile[source] < INT_MIN - RegFile[adder])) {
                             printf("Unexpected behavior. Value overflow.\n");
-                            RegFile[RD(CI)] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
+                            RegFile[dest] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
                         } else {
-                            RegFile[RD(CI)] = RegFile[source] + RegFile[adder];
+                            RegFile[dest] = RegFile[source] + RegFile[adder];
                         }
                         break;
                     }
                     case 0x21:{
                         // addu
-                        RegFile[RD(CI)] = RegFile[RS(CI)] + RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] + RegFile[RT(CI)];
                         break;
                     }
                     case 0x22:{
                         // sub
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t source = RS(CI);
                         uint8_t subber = RT(CI);
                         if((RegFile[source] > 0 && RegFile[subber] < INT_MIN + RegFile[source])
                             || (RegFile[source] < 0 && RegFile[subber] > INT_MAX - RegFile[source])) {
                             printf("Unexpected behavior. Value overflow.\n");
-                            RegFile[RD(CI)] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
+                            RegFile[dest] = RegFile[source] > 0 ? INT_MAX : INT_MIN;
                         } else {
-                            RegFile[RD(CI)] = RegFile[source] - RegFile[subber];
+                            RegFile[dest] = RegFile[source] - RegFile[subber];
                         }
                         break;
                     }
                     case 0x23:{
                         // subu
-                        RegFile[RD(CI)] = RegFile[RS(CI)] - RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] - RegFile[RT(CI)];
                         break;
                     }
                     case 0x1A:{
@@ -144,12 +156,18 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x10:{
                         // mfhi
-                        RegFile[RD(CI)] = RegFile[32];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[32];
                         break;
                     }
                     case 0x12:{
                         // mflo
-                        RegFile[RD(CI)] = RegFile[33];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[33];
                         break;
                     }
                     case 0x11:{
@@ -159,106 +177,148 @@ int main(int argc, char * argv[]) {
                     }
                     case 0x13:{
                         // mtlo
-                        RegFile[33] = RegFile[RD(CI)];
+                        RegFile[33] = RegFile[RS(CI)];
                         break;
                     }
 
                     /*********** LOGIC INSTRUCTIONS ***********/
                     case 0x24:{
                         // and
-                        RegFile[RD(CI)] = RegFile[RS(CI)] & RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] & RegFile[RT(CI)];
                         break;
                     }
                     case 0x26:{
                         // xor
-                        RegFile[RD(CI)] = RegFile[RS(CI)] ^ RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] ^ RegFile[RT(CI)];
                         break;
                     }
                     case 0x27:{
                         // nor
-                        RegFile[RD(CI)] = ~(RegFile[RS(CI)] | RegFile[RT(CI)]);
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = ~(RegFile[RS(CI)] | RegFile[RT(CI)]);
                         break;
                     }
                     case 0x25:{
                         // or
-                        RegFile[RD(CI)] = RegFile[RS(CI)] | RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] | RegFile[RT(CI)];
                         break;
                     }
                     
                     /*********** SHIFTS ***********/
                     case 0x00:{
                         // sll
-                        RegFile[RD(CI)] = RegFile[RT(CI)] << SA(CI);
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RT(CI)] << SA(CI);
                         break;
                     }
                     case 0x04:{
                         // sllv
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t shamt = RegFile[RS(CI)] & 0x1F;
-                        RegFile[RD(CI)] = RegFile[RT(CI)] << shamt;
+                        RegFile[dest] = RegFile[RT(CI)] << shamt;
                         break;
                     }
                     case 0x2A:{
                         // slt
-                        RegFile[RD(CI)] = RegFile[RS(CI)] < RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RS(CI)] < RegFile[RT(CI)];
                         break;
                     }
                     case 0x2B:{
                         // sltu
-                        RegFile[RD(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) RegFile[RT(CI)];
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = (uint32_t) RegFile[RS(CI)] < (uint32_t) RegFile[RT(CI)];
                         break;
                     }
                     case 0x03:{
                         // sra
-                        RegFile[RD(CI)] = RegFile[RT(CI)] >> SA(CI);
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
+                        RegFile[dest] = RegFile[RT(CI)] >> SA(CI);
                         break;
                     }
                     case 0x07:{
                         // srav
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t shamt = RegFile[RS(CI)] & 0x1F;
-                        RegFile[RD(CI)] = RegFile[RT(CI)] >> shamt;
+                        RegFile[dest] = RegFile[RT(CI)] >> shamt;
                         break;
                     }
                     case 0x02:{
                         // srl
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t s = SA(CI);
                         if(s == 0) {
-                            RegFile[RD(CI)] = RegFile[RT(CI)];
+                            RegFile[dest] = RegFile[RT(CI)];
                         } else {
-                            RegFile[RD(CI)] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                            RegFile[dest] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
                         }
                         break;
                     }
                     case 0x06:{
                         // srlv
+                        uint8_t dest = RD(CI);
+                        if(dest == 0)
+                            break;
                         uint8_t s = RegFile[RS(CI)];
                         if(s == 0) {
-                            RegFile[RD(CI)] = RegFile[RT(CI)];
+                            RegFile[dest] = RegFile[RT(CI)];
                         } else {
-                            RegFile[RD(CI)] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                            RegFile[dest] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
                         }
                         break;
                     }
                     case 0x09:{
                         // jalr
                         if(branch == 1) {
-                            printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                            printf("Undefined behavior. Jump in branch or jump delay slot.\n");
                             printf("Exiting\n");
                             return -1;
                         }
                         uint8_t dest = RD(CI);
+                        uint8_t rs = RS(CI);
+                        if(rs == dest) {
+                            printf("Undefined behavior. jal source and desination are equal.\n");
+                            printf("Exiting");
+                            return -1;
+                        }
                         if(dest == 0) {
                             RegFile[31] = PC + 8;
                         } else {
                             RegFile[dest] = PC + 8;
                         }
-                        newPC = RegFile[RS(CI)];
+                        newPC = RegFile[rs];
                         branch = 1;
                         break;
                     }
                     case 0x08:{
                         // jr
                         if(branch == 1) {
-                            printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                            printf("Undefined behavior. Jump in branch or jump delay slot.\n");
                             printf("Exiting\n");
                             return -1;
                         }
@@ -281,42 +341,63 @@ int main(int argc, char * argv[]) {
             /*********** IMMEDIATE INSTRUCTIONS ***********/
             case 0x08:{
                 // addi
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
                 uint8_t source = RS(CI);
                 int16_t imm = immediate(CI);
                 if((RegFile[source] > 0 && imm > INT_MAX - RegFile[source])
                     || (RegFile[source] < 0 && imm < INT_MIN - RegFile[source])) {
                     printf("Unexpected behavior. Value overflow.\n");
                 }
-                RegFile[RT(CI)] = RegFile[source] + imm;
+                RegFile[dest] = RegFile[source] + imm;
                 break;
             }
             case 0x09:{
                 // addiu
-                RegFile[RD(CI)] = RegFile[RS(CI)] + immediate(CI);
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
+                RegFile[dest] = RegFile[RS(CI)] + immediate(CI);
                 break;
             }
             case 0x0C:{
                 // andi
-                RegFile[RD(CI)] = RegFile[RS(CI)] & zeroExtend(immediate(CI));
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
+                RegFile[dest] = RegFile[RS(CI)] & zeroExtend(immediate(CI));
                 break;
             }
             case 0x0E:{
                 // xori
-                RegFile[RD(CI)] = RegFile[RS(CI)] ^ zeroExtend(immediate(CI));
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
+                RegFile[dest] = RegFile[RS(CI)] ^ zeroExtend(immediate(CI));
                 break;
             }
             case 0x0D:{
                 // ori
-                RegFile[RD(CI)] = RegFile[RS(CI)] | zeroExtend(immediate(CI));
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
+                RegFile[dest] = RegFile[RS(CI)] | zeroExtend(immediate(CI));
                 break;
             }
             case 0x0A:{
                 // slti
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
                 RegFile[RT(CI)] = RegFile[RS(CI)] < signExtend(immediate(CI));
                 break;
             }
             case 0x0B:{
                 // sltiu
+                uint8_t dest = RT(CI);
+                if(dest == 0)
+                    break;
                 RegFile[RT(CI)] = (uint32_t) RegFile[RS(CI)] < (uint32_t) signExtend(immediate(CI));
                 break;
             }
@@ -325,7 +406,7 @@ int main(int argc, char * argv[]) {
             case 0x04:{
                 // beq
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -338,7 +419,7 @@ int main(int argc, char * argv[]) {
             case 0x14:{
                 // beql
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -353,7 +434,7 @@ int main(int argc, char * argv[]) {
             case 0x07:{
                 // bgtz
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -366,7 +447,7 @@ int main(int argc, char * argv[]) {
             case 0x06:{
                 // blez
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -379,7 +460,7 @@ int main(int argc, char * argv[]) {
             case 0x16:{
                 // blezl
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -394,7 +475,7 @@ int main(int argc, char * argv[]) {
             case 0x05:{
                 // bne
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -407,7 +488,7 @@ int main(int argc, char * argv[]) {
             case 0x15:{
                 // bnel
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -433,7 +514,7 @@ int main(int argc, char * argv[]) {
             case 0x03:{
                 // jal
                 if(branch == 1) {
-                    printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                    printf("Undefined behavior. Jump in branch or jump delay slot.\n");
                     printf("Exiting\n");
                     return -1;
                 }
@@ -446,50 +527,70 @@ int main(int argc, char * argv[]) {
             /*********** LOADS ***********/
             case 0x20:{
                 // LB
-                RegFile[RT(CI)] = signExtend(readByte(RegFile[base(CI)] + signExtend(offset(CI)), false));
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
+                RegFile[rt] = signExtend(readByte(RegFile[base(CI)] + signExtend(offset(CI)), false));
                 break;
             }
             case 0x24:{
                 // LBU
-                RegFile[RT(CI)] = zeroExtend(readByte(RegFile[base(CI)] + zeroExtend(offset(CI)), false));
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
+                RegFile[rt] = zeroExtend(readByte(RegFile[base(CI)] + zeroExtend(offset(CI)), false));
                 break;
             }
             case 0x21:{
                 // LH
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
                 int16_t off = offset(CI);
                 if(off % 2 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT(CI)] = readWord(RegFile[base(CI)] + signExtend(off), false) >> 16;
+                RegFile[rt] = readWord(RegFile[base(CI)] + signExtend(off), false) >> 16;
                 break;
             }
             case 0x25:{
                 // LHU
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
                 int16_t off = offset(CI);
                 if(off % 2 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT(CI)] = (readWord(RegFile[base(CI)] + signExtend(off), false) >> 16) & 0xFFFF;
+                RegFile[rt] = (readWord(RegFile[base(CI)] + signExtend(off), false) >> 16) & 0xFFFF;
                 break;
             }
             case 0x0F:{
                 // LUI
-                RegFile[RT(CI)] = ((int32_t) immediate(CI)) << 16;
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
+                RegFile[rt] = ((int32_t) immediate(CI)) << 16;
                 break;
             }
             case 0x23:{
                 // LW
+                uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
                 int16_t off = offset(CI);
                 if(off % 4 != 0) {
                     printf("Offset not aligned with word boundary.\n");
                 }
-                RegFile[RT(CI)] = signExtend(readWord(RegFile[base(CI)] + signExtend(off), false));
+                RegFile[rt] = signExtend(readWord(RegFile[base(CI)] + signExtend(off), false));
                 break;
             }
             case 0x22:{
                 // LWL
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 int off = 24;
                 do {
                     RegFile[rt] &= ~(0xFF << off);
@@ -501,8 +602,10 @@ int main(int argc, char * argv[]) {
             }
             case 0x26:{
                 // LWR
-                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 uint8_t rt = RT(CI);
+                if(rt == 0)
+                    break;
+                uint32_t addr = RegFile[base(CI)] + signExtend(offset(CI));
                 int off = 0;
                 do {
                     RegFile[rt] &= ~(0xFF << off);
@@ -574,7 +677,7 @@ int main(int argc, char * argv[]) {
                 if(REGIMM == 0x01) {
                     // bgez
                     if(branch == 1) {
-                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                         printf("Exiting\n");
                         return -1;
                     }
@@ -585,7 +688,7 @@ int main(int argc, char * argv[]) {
                 } else if(REGIMM == 0x11) {
                     // bgezal
                     if(branch == 1) {
-                        printf("Undefined behavior. Branch or jump in branch delay slot.\n");
+                        printf("Undefined behavior. Branch in branch or jump delay slot.\n");
                         printf("Exiting\n");
                         return -1;
                     }
