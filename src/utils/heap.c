@@ -7,9 +7,9 @@
 
 struct heap_stat *HEAPSTATUS;
 
-uint32_t HEAP_END;
-uint32_t BLOCKNUM;
-uint32_t current_break;
+ uint32_t HEAP_END;
+ uint32_t BLOCKNUM;
+ uint32_t current_break;
 
 void initHeap(){
     HEAPSTATUS = NULL;
@@ -19,6 +19,7 @@ void initHeap(){
 }
 
 void addHeapStatus(uint32_t ADDR, int STAT,bool DEBUG) {
+
     struct heap_stat *m;
 
     HASH_FIND_INT(HEAPSTATUS,&ADDR ,m);
@@ -37,29 +38,29 @@ void addHeapStatus(uint32_t ADDR, int STAT,bool DEBUG) {
         HASH_REPLACE_INT(HEAPSTATUS,addr,m,dump);
         free(dump);
     }
+
 }
 
 int readHeapStatus(uint32_t ADDR,bool DEBUG) {
+
     struct heap_stat *m;
     int temp = 0;
     HASH_FIND_INT(HEAPSTATUS,&ADDR ,m);
-    if(m == NULL) 
-        temp = 0;
-    else 
-        temp = m->status;
-    if(DEBUG) 
-        printf("hREAD : Address = %x STAT = %x \n",ADDR,temp);
+    if(m == NULL) { temp = 0;}
+    else          { temp = m->status;}
+    if(DEBUG) printf("hREAD : Address = %x STAT = %x \n",ADDR,temp);
     return temp;
+
 }
 
 
 void heapDump(){
 	int heapStart =  exec.HEAPSTART;
-    uint32_t i;
+        uint32_t i;
 	printf("-----Heap Dump------");
 	printf("  Heap Start: %d \n",heapStart);
 	printf("  Heap Size: %d \n",HEAP_END-heapStart);
-	for(i=heapStart; i<=HEAP_END; i++) {
+	for( i=heapStart; i<=HEAP_END; i++) {
 		printf(" %x ",readWord(i,false));
 		if(i%2!=0){
 			printf("\n");
@@ -74,7 +75,7 @@ void heapDump(){
 
 
 void prepHeapBlock(uint32_t addr, uint32_t size){
-    uint32_t i;
+     uint32_t i;
 	for(i=addr; i<addr+size; i++){
 	    addHeapStatus(i,BLOCKNUM,false);		
 	}
@@ -83,31 +84,24 @@ void prepHeapBlock(uint32_t addr, uint32_t size){
 
 
 uint32_t mm_malloc(uint32_t size){
-	if(size==0)
-        return 0;
+	if(size==0){return 0;}
 	uint32_t heapStart =  exec.HEAPSTART;
-    uint32_t i;
-	if(HEAP_END==0)
-        HEAP_END=heapStart;
+        uint32_t i;
+	if(HEAP_END==0){HEAP_END=heapStart;}
 	BLOCKNUM++;
 	int blockCounter=0;
 	for(i=heapStart; i<=HEAP_END+size; i++) {
-		if (readHeapStatus(i,false)==0) {
-            blockCounter++;
-        }
-		else {
-            blockCounter=0;
-        }
-	    // printf("blockCounter = %d \n ",blockCounter);
+		
+		if (readHeapStatus(i,false)==0) {blockCounter++;}
+		else {blockCounter=0;}
+	       // printf("blockCounter = %d \n ",blockCounter);
 		uint32_t blockStart = i-size+1;
 		if (blockCounter>=size && (blockStart%4==0)) {
-            printf("DEBUG : Found Heap Block @ %x\n",blockStart);
+                        printf("DEBUG : Found Heap Block @ %x\n",blockStart);
 		 	prepHeapBlock(blockStart,size);
-			if(i>HEAP_END) {
-                HEAP_END=i;
-            }
+			if(i>HEAP_END){HEAP_END=i;}
 			//memLog("Malloc returned " + num2Str(blockStart));
-		    return blockStart;
+			return blockStart;
 		}
 	}
 	return 0;
@@ -118,7 +112,7 @@ uint32_t mm_malloc(uint32_t size){
 void mm_free(uint32_t addr){
 	//int heapStart =  exec.HEAPSTART;
 	int num = readHeapStatus(addr,false);
-    uint32_t i;
+        uint32_t i;
 	//memLog("Freeing " + num2Str(addr));
 	if(addr == 0) {
 		return;
@@ -129,9 +123,8 @@ void mm_free(uint32_t addr){
 		exit(-1);
 	}
 	for(i=addr; i<=HEAP_END; i++) {			
-		if (readHeapStatus(i,false)==num) {
-            addHeapStatus(i,0,false);
-        }
+		if (readHeapStatus(i,false)==num)
+			{addHeapStatus(i,0,false);}
 		else break;								
 	}
 }
@@ -148,3 +141,10 @@ uint32_t mm_sbrk(int32_t value) {
 	}
 	return current_break;
 }
+
+
+
+
+
+
+

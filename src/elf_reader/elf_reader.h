@@ -88,8 +88,10 @@ extern uint32_t* readfPointer(char const* fName, struct Exe_Format* exFormat,boo
 extern struct fpointer* findfPointer(char const* fName, struct Exe_Format* exFormat, bool DEBUG);
 
 extern void writeByte(uint32_t ADDR, uint8_t DATA,bool DEBUG);
+extern void writeHalf(uint32_t ADDR, uint16_t DATA, bool DEBUG1);
 extern void writeWord(uint32_t ADDR, uint32_t DATA, bool DEBUG1);
 extern uint8_t readByte(uint32_t ADDR, bool DEBUG);
+extern uint16_t readHalf(uint32_t ADDR, bool DEBUG);
 extern uint32_t readWord(uint32_t ADDR, bool DEBUG);
 
 extern void init_syscalls(); 

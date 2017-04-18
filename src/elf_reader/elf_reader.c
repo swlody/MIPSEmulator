@@ -144,6 +144,27 @@ uint32_t readWord(uint32_t ADDR,bool DEBUG) {
     return temp;
 }
 
+uint16_t readHalf(uint32_t ADDR,bool DEBUG) {
+    uint16_t temp;
+    bool DEBUG1 = false;
+    temp = readByte(ADDR + 0,DEBUG1);
+    temp <<= 8;
+    temp |= readByte(ADDR + 1,DEBUG1);
+    if(DEBUG) printf("READHF : Addr = 0x%08x Data = 0x%08x \n",ADDR,temp);
+    return temp;
+}
+
+void writeHalf(uint32_t ADDR, uint16_t DATA, bool DEBUG1) {
+    uint8_t temp;
+    bool DEBUG = DEBUG1;
+
+    if(DEBUG1) printf(" WRITE WORD: Addr = %x Data = %x \n",ADDR,DATA);
+    temp = DATA;
+    writeByte(ADDR + 1,temp,DEBUG);
+    temp >>= 8;
+    writeByte(ADDR + 0,temp,DEBUG);
+}
+
 void init_syscalls() {
     syscalls.CFREE_ADDRESS = 0xFFFFFFF0;
     syscalls.EXIT_ADDRESS = 0xFFFFFFF0;

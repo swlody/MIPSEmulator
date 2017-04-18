@@ -49,13 +49,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef NO_DECLTYPE
 #define DECLTYPE_ASSIGN(dst,src)                                                 \
 do {                                                                             \
-    char **_da_dst = (char**)(&(dst));                                             \
-    *_da_dst = (char*)(src);                                                       \
+  char **_da_dst = (char**)(&(dst));                                             \
+  *_da_dst = (char*)(src);                                                       \
 } while(0)
 #else
 #define DECLTYPE_ASSIGN(dst,src)                                                 \
 do {                                                                             \
-    (dst) = DECLTYPE(dst)(src);                                                    \
+  (dst) = DECLTYPE(dst)(src);                                                    \
 } while(0)
 #endif
 
@@ -105,15 +105,15 @@ typedef unsigned char uint8_t;
 
 #define HASH_FIND(hh,head,keyptr,keylen,out)                                     \
 do {                                                                             \
-    out=NULL;                                                                      \
-    if (head != NULL) {                                                            \
-        unsigned _hf_bkt,_hf_hashv;                                                 \
-        HASH_FCN(keyptr,keylen, (head)->hh.tbl->num_buckets, _hf_hashv, _hf_bkt);   \
-        if (HASH_BLOOM_TEST((head)->hh.tbl, _hf_hashv) != 0) {                      \
-            HASH_FIND_IN_BKT((head)->hh.tbl, hh, (head)->hh.tbl->buckets[ _hf_bkt ],  \
-                keyptr,keylen,out);                                      \
-        }                                                                           \
-    }                                                                              \
+  out=NULL;                                                                      \
+  if (head != NULL) {                                                            \
+     unsigned _hf_bkt,_hf_hashv;                                                 \
+     HASH_FCN(keyptr,keylen, (head)->hh.tbl->num_buckets, _hf_hashv, _hf_bkt);   \
+     if (HASH_BLOOM_TEST((head)->hh.tbl, _hf_hashv) != 0) {                      \
+       HASH_FIND_IN_BKT((head)->hh.tbl, hh, (head)->hh.tbl->buckets[ _hf_bkt ],  \
+                        keyptr,keylen,out);                                      \
+     }                                                                           \
+  }                                                                              \
 } while (0)
 
 #ifdef HASH_BLOOM
@@ -121,26 +121,26 @@ do {                                                                            
 #define HASH_BLOOM_BYTELEN (HASH_BLOOM_BITLEN/8UL) + (((HASH_BLOOM_BITLEN%8UL)!=0UL) ? 1UL : 0UL)
 #define HASH_BLOOM_MAKE(tbl)                                                     \
 do {                                                                             \
-    (tbl)->bloom_nbits = HASH_BLOOM;                                               \
-    (tbl)->bloom_bv = (uint8_t*)uthash_malloc(HASH_BLOOM_BYTELEN);                 \
-    if (!((tbl)->bloom_bv))  { uthash_fatal( "out of memory"); }                   \
-    memset((tbl)->bloom_bv, 0, HASH_BLOOM_BYTELEN);                                \
-    (tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;                                       \
+  (tbl)->bloom_nbits = HASH_BLOOM;                                               \
+  (tbl)->bloom_bv = (uint8_t*)uthash_malloc(HASH_BLOOM_BYTELEN);                 \
+  if (!((tbl)->bloom_bv))  { uthash_fatal( "out of memory"); }                   \
+  memset((tbl)->bloom_bv, 0, HASH_BLOOM_BYTELEN);                                \
+  (tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;                                       \
 } while (0)
 
 #define HASH_BLOOM_FREE(tbl)                                                     \
 do {                                                                             \
-    uthash_free((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);                              \
+  uthash_free((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);                              \
 } while (0)
 
 #define HASH_BLOOM_BITSET(bv,idx) (bv[(idx)/8U] |= (1U << ((idx)%8U)))
 #define HASH_BLOOM_BITTEST(bv,idx) (bv[(idx)/8U] & (1U << ((idx)%8U)))
 
 #define HASH_BLOOM_ADD(tbl,hashv)                                                \
-    HASH_BLOOM_BITSET((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1U)))
+  HASH_BLOOM_BITSET((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1U)))
 
 #define HASH_BLOOM_TEST(tbl,hashv)                                               \
-    HASH_BLOOM_BITTEST((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1U)))
+  HASH_BLOOM_BITTEST((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1U)))
 
 #else
 #define HASH_BLOOM_MAKE(tbl)
@@ -152,21 +152,21 @@ do {                                                                            
 
 #define HASH_MAKE_TABLE(hh,head)                                                 \
 do {                                                                             \
-    (head)->hh.tbl = (UT_hash_table*)uthash_malloc(                                \
-        sizeof(UT_hash_table));                                        \
-    if (!((head)->hh.tbl))  { uthash_fatal( "out of memory"); }                    \
-    memset((head)->hh.tbl, 0, sizeof(UT_hash_table));                              \
-    (head)->hh.tbl->tail = &((head)->hh);                                          \
-    (head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;                        \
-    (head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;              \
-    (head)->hh.tbl->hho = (char*)(&(head)->hh) - (char*)(head);                    \
-    (head)->hh.tbl->buckets = (UT_hash_bucket*)uthash_malloc(                      \
+  (head)->hh.tbl = (UT_hash_table*)uthash_malloc(                                \
+                  sizeof(UT_hash_table));                                        \
+  if (!((head)->hh.tbl))  { uthash_fatal( "out of memory"); }                    \
+  memset((head)->hh.tbl, 0, sizeof(UT_hash_table));                              \
+  (head)->hh.tbl->tail = &((head)->hh);                                          \
+  (head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;                        \
+  (head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;              \
+  (head)->hh.tbl->hho = (char*)(&(head)->hh) - (char*)(head);                    \
+  (head)->hh.tbl->buckets = (UT_hash_bucket*)uthash_malloc(                      \
           HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket));               \
-    if (! (head)->hh.tbl->buckets) { uthash_fatal( "out of memory"); }             \
-    memset((head)->hh.tbl->buckets, 0,                                             \
+  if (! (head)->hh.tbl->buckets) { uthash_fatal( "out of memory"); }             \
+  memset((head)->hh.tbl->buckets, 0,                                             \
           HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket));               \
-    HASH_BLOOM_MAKE((head)->hh.tbl);                                               \
-    (head)->hh.tbl->signature = HASH_SIGNATURE;                                    \
+  HASH_BLOOM_MAKE((head)->hh.tbl);                                               \
+  (head)->hh.tbl->signature = HASH_SIGNATURE;                                    \
 } while(0)
 
 #define HASH_ADD(hh,head,fieldname,keylen_in,add)                                \
@@ -174,42 +174,42 @@ do {                                                                            
 
 #define HASH_REPLACE(hh,head,fieldname,keylen_in,add,replaced)                   \
 do {                                                                             \
-    replaced=NULL;                                                                 \
-    HASH_FIND(hh,head,&((add)->fieldname),keylen_in,replaced);                     \
-    if (replaced!=NULL) {                                                          \
+  replaced=NULL;                                                                 \
+  HASH_FIND(hh,head,&((add)->fieldname),keylen_in,replaced);                     \
+  if (replaced!=NULL) {                                                          \
      HASH_DELETE(hh,head,replaced);                                              \
-    }                                                                              \
-    HASH_ADD(hh,head,fieldname,keylen_in,add);                                     \
+  }                                                                              \
+  HASH_ADD(hh,head,fieldname,keylen_in,add);                                     \
 } while(0)
 
 #define HASH_ADD_KEYPTR(hh,head,keyptr,keylen_in,add)                            \
 do {                                                                             \
-    unsigned _ha_bkt;                                                               \
-    (add)->hh.next = NULL;                                                          \
-    (add)->hh.key = (char*)(keyptr);                                                \
-    (add)->hh.keylen = (unsigned)(keylen_in);                                       \
-    if (!(head)) {                                                                  \
-        head = (add);                                                                \
-        (head)->hh.prev = NULL;                                                      \
-        HASH_MAKE_TABLE(hh,head);                                                    \
-    } else {                                                                        \
-        (head)->hh.tbl->tail->next = (add);                                          \
-        (add)->hh.prev = ELMT_FROM_HH((head)->hh.tbl, (head)->hh.tbl->tail);         \
-        (head)->hh.tbl->tail = &((add)->hh);                                         \
-    }                                                                               \
-    (head)->hh.tbl->num_items++;                                                    \
-    (add)->hh.tbl = (head)->hh.tbl;                                                 \
-    HASH_FCN(keyptr,keylen_in, (head)->hh.tbl->num_buckets,                         \
+ unsigned _ha_bkt;                                                               \
+ (add)->hh.next = NULL;                                                          \
+ (add)->hh.key = (char*)(keyptr);                                                \
+ (add)->hh.keylen = (unsigned)(keylen_in);                                       \
+ if (!(head)) {                                                                  \
+    head = (add);                                                                \
+    (head)->hh.prev = NULL;                                                      \
+    HASH_MAKE_TABLE(hh,head);                                                    \
+ } else {                                                                        \
+    (head)->hh.tbl->tail->next = (add);                                          \
+    (add)->hh.prev = ELMT_FROM_HH((head)->hh.tbl, (head)->hh.tbl->tail);         \
+    (head)->hh.tbl->tail = &((add)->hh);                                         \
+ }                                                                               \
+ (head)->hh.tbl->num_items++;                                                    \
+ (add)->hh.tbl = (head)->hh.tbl;                                                 \
+ HASH_FCN(keyptr,keylen_in, (head)->hh.tbl->num_buckets,                         \
          (add)->hh.hashv, _ha_bkt);                                              \
-    HASH_ADD_TO_BKT((head)->hh.tbl->buckets[_ha_bkt],&(add)->hh);                   \
-    HASH_BLOOM_ADD((head)->hh.tbl,(add)->hh.hashv);                                 \
-    HASH_EMIT_KEY(hh,head,keyptr,keylen_in);                                        \
-    HASH_FSCK(hh,head);                                                             \
+ HASH_ADD_TO_BKT((head)->hh.tbl->buckets[_ha_bkt],&(add)->hh);                   \
+ HASH_BLOOM_ADD((head)->hh.tbl,(add)->hh.hashv);                                 \
+ HASH_EMIT_KEY(hh,head,keyptr,keylen_in);                                        \
+ HASH_FSCK(hh,head);                                                             \
 } while(0)
 
 #define HASH_TO_BKT( hashv, num_bkts, bkt )                                      \
 do {                                                                             \
-    bkt = ((hashv) & ((num_bkts) - 1U));                                           \
+  bkt = ((hashv) & ((num_bkts) - 1U));                                           \
 } while(0)
 
 /* delete "delptr" from the hash table.
@@ -229,7 +229,7 @@ do {                                                                            
     struct UT_hash_handle *_hd_hh_del;                                           \
     if ( ((delptr)->hh.prev == NULL) && ((delptr)->hh.next == NULL) )  {         \
         uthash_free((head)->hh.tbl->buckets,                                     \
-            (head)->hh.tbl->num_buckets*sizeof(struct UT_hash_bucket) ); \
+                    (head)->hh.tbl->num_buckets*sizeof(struct UT_hash_bucket) ); \
         HASH_BLOOM_FREE((head)->hh.tbl);                                         \
         uthash_free((head)->hh.tbl, sizeof(UT_hash_table));                      \
         head = NULL;                                                             \
@@ -249,8 +249,8 @@ do {                                                                            
         }                                                                        \
         if (_hd_hh_del->next != NULL) {                                          \
             ((UT_hash_handle*)((ptrdiff_t)_hd_hh_del->next +                     \
-                (head)->hh.tbl->hho))->prev =                                \
-                _hd_hh_del->prev;                                            \
+                    (head)->hh.tbl->hho))->prev =                                \
+                    _hd_hh_del->prev;                                            \
         }                                                                        \
         HASH_TO_BKT( _hd_hh_del->hashv, (head)->hh.tbl->num_buckets, _hd_bkt);   \
         HASH_DEL_IN_BKT(hh,(head)->hh.tbl->buckets[_hd_bkt], _hd_hh_del);        \
@@ -366,13 +366,13 @@ do {                                                                            
 /* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
 #define HASH_BER(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
-    unsigned _hb_keylen=(unsigned)keylen;                                          \
-    const unsigned char *_hb_key=(const unsigned char*)(key);                      \
-    (hashv) = 0;                                                                   \
-    while (_hb_keylen-- != 0U) {                                                   \
+  unsigned _hb_keylen=(unsigned)keylen;                                          \
+  const unsigned char *_hb_key=(const unsigned char*)(key);                      \
+  (hashv) = 0;                                                                   \
+  while (_hb_keylen-- != 0U) {                                                   \
       (hashv) = (((hashv) << 5) + (hashv)) + *_hb_key++;                         \
-    }                                                                              \
-    bkt = (hashv) & (num_bkts-1U);                                                 \
+  }                                                                              \
+  bkt = (hashv) & (num_bkts-1U);                                                 \
 } while (0)
 
 
@@ -380,25 +380,25 @@ do {                                                                            
  * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx */
 #define HASH_SAX(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
-    unsigned _sx_i;                                                                \
-    const unsigned char *_hs_key=(const unsigned char*)(key);                      \
-    hashv = 0;                                                                     \
-    for(_sx_i=0; _sx_i < keylen; _sx_i++) {                                        \
+  unsigned _sx_i;                                                                \
+  const unsigned char *_hs_key=(const unsigned char*)(key);                      \
+  hashv = 0;                                                                     \
+  for(_sx_i=0; _sx_i < keylen; _sx_i++) {                                        \
       hashv ^= (hashv << 5) + (hashv >> 2) + _hs_key[_sx_i];                     \
-    }                                                                              \
-    bkt = hashv & (num_bkts-1U);                                                   \
+  }                                                                              \
+  bkt = hashv & (num_bkts-1U);                                                   \
 } while (0)
 /* FNV-1a variation */
 #define HASH_FNV(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
-    unsigned _fn_i;                                                                \
-    const unsigned char *_hf_key=(const unsigned char*)(key);                      \
-    hashv = 2166136261U;                                                           \
-    for(_fn_i=0; _fn_i < keylen; _fn_i++) {                                        \
-        hashv = hashv ^ _hf_key[_fn_i];                                            \
-        hashv = hashv * 16777619U;                                                 \
-    }                                                                              \
-    bkt = hashv & (num_bkts-1U);                                                   \
+  unsigned _fn_i;                                                                \
+  const unsigned char *_hf_key=(const unsigned char*)(key);                      \
+  hashv = 2166136261U;                                                           \
+  for(_fn_i=0; _fn_i < keylen; _fn_i++) {                                        \
+      hashv = hashv ^ _hf_key[_fn_i];                                            \
+      hashv = hashv * 16777619U;                                                 \
+  }                                                                              \
+  bkt = hashv & (num_bkts-1U);                                                   \
 } while(0)
 
 #define HASH_OAT(key,keylen,num_bkts,hashv,bkt)                                  \
@@ -419,56 +419,56 @@ do {                                                                            
 
 #define HASH_JEN_MIX(a,b,c)                                                      \
 do {                                                                             \
-    a -= b; a -= c; a ^= ( c >> 13 );                                              \
-    b -= c; b -= a; b ^= ( a << 8 );                                               \
-    c -= a; c -= b; c ^= ( b >> 13 );                                              \
-    a -= b; a -= c; a ^= ( c >> 12 );                                              \
-    b -= c; b -= a; b ^= ( a << 16 );                                              \
-    c -= a; c -= b; c ^= ( b >> 5 );                                               \
-    a -= b; a -= c; a ^= ( c >> 3 );                                               \
-    b -= c; b -= a; b ^= ( a << 10 );                                              \
-    c -= a; c -= b; c ^= ( b >> 15 );                                              \
+  a -= b; a -= c; a ^= ( c >> 13 );                                              \
+  b -= c; b -= a; b ^= ( a << 8 );                                               \
+  c -= a; c -= b; c ^= ( b >> 13 );                                              \
+  a -= b; a -= c; a ^= ( c >> 12 );                                              \
+  b -= c; b -= a; b ^= ( a << 16 );                                              \
+  c -= a; c -= b; c ^= ( b >> 5 );                                               \
+  a -= b; a -= c; a ^= ( c >> 3 );                                               \
+  b -= c; b -= a; b ^= ( a << 10 );                                              \
+  c -= a; c -= b; c ^= ( b >> 15 );                                              \
 } while (0)
 
 #define HASH_JEN(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
-    unsigned _hj_i,_hj_j,_hj_k;                                                    \
-    unsigned const char *_hj_key=(unsigned const char*)(key);                      \
-    hashv = 0xfeedbeefu;                                                           \
-    _hj_i = _hj_j = 0x9e3779b9u;                                                   \
-    _hj_k = (unsigned)(keylen);                                                    \
-    while (_hj_k >= 12U) {                                                         \
-        _hj_i +=    (_hj_key[0] + ( (unsigned)_hj_key[1] << 8 )                      \
-            + ( (unsigned)_hj_key[2] << 16 )                                         \
-            + ( (unsigned)_hj_key[3] << 24 ) );                                      \
-        _hj_j +=    (_hj_key[4] + ( (unsigned)_hj_key[5] << 8 )                      \
-            + ( (unsigned)_hj_key[6] << 16 )                                         \
-            + ( (unsigned)_hj_key[7] << 24 ) );                                      \
-        hashv += (_hj_key[8] + ( (unsigned)_hj_key[9] << 8 )                         \
-            + ( (unsigned)_hj_key[10] << 16 )                                        \
-            + ( (unsigned)_hj_key[11] << 24 ) );                                     \
-                                                                                     \
-         HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                          \
-                                                                                     \
-         _hj_key += 12;                                                              \
-         _hj_k -= 12U;                                                               \
-    }                                                                              \
-    hashv += (unsigned)(keylen);                                                   \
-    switch ( _hj_k ) {                                                             \
-        case 11: hashv += ( (unsigned)_hj_key[10] << 24 ); /* FALLTHROUGH */        \
-        case 10: hashv += ( (unsigned)_hj_key[9] << 16 );  /* FALLTHROUGH */        \
-        case 9:  hashv += ( (unsigned)_hj_key[8] << 8 );   /* FALLTHROUGH */        \
-        case 8:  _hj_j += ( (unsigned)_hj_key[7] << 24 );  /* FALLTHROUGH */        \
-        case 7:  _hj_j += ( (unsigned)_hj_key[6] << 16 );  /* FALLTHROUGH */        \
-        case 6:  _hj_j += ( (unsigned)_hj_key[5] << 8 );   /* FALLTHROUGH */        \
-        case 5:  _hj_j += _hj_key[4];                      /* FALLTHROUGH */        \
-        case 4:  _hj_i += ( (unsigned)_hj_key[3] << 24 );  /* FALLTHROUGH */        \
-        case 3:  _hj_i += ( (unsigned)_hj_key[2] << 16 );  /* FALLTHROUGH */        \
-        case 2:  _hj_i += ( (unsigned)_hj_key[1] << 8 );   /* FALLTHROUGH */        \
-        case 1:  _hj_i += _hj_key[0];                                               \
-    }                                                                              \
-    HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                             \
-    bkt = hashv & (num_bkts-1U);                                                   \
+  unsigned _hj_i,_hj_j,_hj_k;                                                    \
+  unsigned const char *_hj_key=(unsigned const char*)(key);                      \
+  hashv = 0xfeedbeefu;                                                           \
+  _hj_i = _hj_j = 0x9e3779b9u;                                                   \
+  _hj_k = (unsigned)(keylen);                                                    \
+  while (_hj_k >= 12U) {                                                         \
+    _hj_i +=    (_hj_key[0] + ( (unsigned)_hj_key[1] << 8 )                      \
+        + ( (unsigned)_hj_key[2] << 16 )                                         \
+        + ( (unsigned)_hj_key[3] << 24 ) );                                      \
+    _hj_j +=    (_hj_key[4] + ( (unsigned)_hj_key[5] << 8 )                      \
+        + ( (unsigned)_hj_key[6] << 16 )                                         \
+        + ( (unsigned)_hj_key[7] << 24 ) );                                      \
+    hashv += (_hj_key[8] + ( (unsigned)_hj_key[9] << 8 )                         \
+        + ( (unsigned)_hj_key[10] << 16 )                                        \
+        + ( (unsigned)_hj_key[11] << 24 ) );                                     \
+                                                                                 \
+     HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                          \
+                                                                                 \
+     _hj_key += 12;                                                              \
+     _hj_k -= 12U;                                                               \
+  }                                                                              \
+  hashv += (unsigned)(keylen);                                                   \
+  switch ( _hj_k ) {                                                             \
+     case 11: hashv += ( (unsigned)_hj_key[10] << 24 ); /* FALLTHROUGH */        \
+     case 10: hashv += ( (unsigned)_hj_key[9] << 16 );  /* FALLTHROUGH */        \
+     case 9:  hashv += ( (unsigned)_hj_key[8] << 8 );   /* FALLTHROUGH */        \
+     case 8:  _hj_j += ( (unsigned)_hj_key[7] << 24 );  /* FALLTHROUGH */        \
+     case 7:  _hj_j += ( (unsigned)_hj_key[6] << 16 );  /* FALLTHROUGH */        \
+     case 6:  _hj_j += ( (unsigned)_hj_key[5] << 8 );   /* FALLTHROUGH */        \
+     case 5:  _hj_j += _hj_key[4];                      /* FALLTHROUGH */        \
+     case 4:  _hj_i += ( (unsigned)_hj_key[3] << 24 );  /* FALLTHROUGH */        \
+     case 3:  _hj_i += ( (unsigned)_hj_key[2] << 16 );  /* FALLTHROUGH */        \
+     case 2:  _hj_i += ( (unsigned)_hj_key[1] << 8 );   /* FALLTHROUGH */        \
+     case 1:  _hj_i += _hj_key[0];                                               \
+  }                                                                              \
+  HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                             \
+  bkt = hashv & (num_bkts-1U);                                                   \
 } while(0)
 
 /* The Paul Hsieh hash function */
@@ -484,37 +484,37 @@ do {                                                                            
 #endif
 #define HASH_SFH(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
-    unsigned const char *_sfh_key=(unsigned const char*)(key);                     \
-    uint32_t _sfh_tmp, _sfh_len = (uint32_t)keylen;                                \
+  unsigned const char *_sfh_key=(unsigned const char*)(key);                     \
+  uint32_t _sfh_tmp, _sfh_len = (uint32_t)keylen;                                \
                                                                                  \
-    unsigned _sfh_rem = _sfh_len & 3U;                                             \
-    _sfh_len >>= 2;                                                                \
-    hashv = 0xcafebabeu;                                                           \
+  unsigned _sfh_rem = _sfh_len & 3U;                                             \
+  _sfh_len >>= 2;                                                                \
+  hashv = 0xcafebabeu;                                                           \
                                                                                  \
   /* Main loop */                                                                \
-    for (;_sfh_len > 0U; _sfh_len--) {                                             \
-        hashv    += get16bits (_sfh_key);                                            \
-        _sfh_tmp  = ((uint32_t)(get16bits (_sfh_key+2)) << 11) ^ hashv;              \
-        hashv     = (hashv << 16) ^ _sfh_tmp;                                        \
-        _sfh_key += 2U*sizeof (uint16_t);                                            \
-        hashv    += hashv >> 11;                                                     \
-    }                                                                              \
+  for (;_sfh_len > 0U; _sfh_len--) {                                             \
+    hashv    += get16bits (_sfh_key);                                            \
+    _sfh_tmp  = ((uint32_t)(get16bits (_sfh_key+2)) << 11) ^ hashv;              \
+    hashv     = (hashv << 16) ^ _sfh_tmp;                                        \
+    _sfh_key += 2U*sizeof (uint16_t);                                            \
+    hashv    += hashv >> 11;                                                     \
+  }                                                                              \
                                                                                  \
   /* Handle end cases */                                                         \
-    switch (_sfh_rem) {                                                            \
-        case 3: hashv += get16bits (_sfh_key);                                       \
-                hashv ^= hashv << 16;                                                \
-                hashv ^= (uint32_t)(_sfh_key[sizeof (uint16_t)]) << 18;              \
-                hashv += hashv >> 11;                                                \
-                break;                                                               \
-        case 2: hashv += get16bits (_sfh_key);                                       \
-                hashv ^= hashv << 11;                                                \
-                hashv += hashv >> 17;                                                \
-                break;                                                               \
-        case 1: hashv += *_sfh_key;                                                  \
-                hashv ^= hashv << 10;                                                \
-                hashv += hashv >> 1;                                                 \
-    }                                                                              \
+  switch (_sfh_rem) {                                                            \
+    case 3: hashv += get16bits (_sfh_key);                                       \
+            hashv ^= hashv << 16;                                                \
+            hashv ^= (uint32_t)(_sfh_key[sizeof (uint16_t)]) << 18;              \
+            hashv += hashv >> 11;                                                \
+            break;                                                               \
+    case 2: hashv += get16bits (_sfh_key);                                       \
+            hashv ^= hashv << 11;                                                \
+            hashv += hashv >> 17;                                                \
+            break;                                                               \
+    case 1: hashv += *_sfh_key;                                                  \
+            hashv ^= hashv << 10;                                                \
+            hashv += hashv >> 1;                                                 \
+  }                                                                              \
                                                                                  \
     /* Force "avalanching" of final 127 bits */                                  \
     hashv ^= hashv << 3;                                                         \
@@ -561,49 +561,49 @@ do {                                                                            
 #define MUR_ROTL32(x,r) (((x) << (r)) | ((x) >> (32 - (r))))
 #define MUR_FMIX(_h) \
 do {                 \
-    _h ^= _h >> 16;    \
-    _h *= 0x85ebca6bu; \
-    _h ^= _h >> 13;    \
-    _h *= 0xc2b2ae35u; \
-    _h ^= _h >> 16;    \
+  _h ^= _h >> 16;    \
+  _h *= 0x85ebca6bu; \
+  _h ^= _h >> 13;    \
+  _h *= 0xc2b2ae35u; \
+  _h ^= _h >> 16;    \
 } while(0)
 
 #define HASH_MUR(key,keylen,num_bkts,hashv,bkt)                        \
 do {                                                                   \
-    const uint8_t *_mur_data = (const uint8_t*)(key);                    \
-    const int _mur_nblocks = (int)(keylen) / 4;                          \
-    uint32_t _mur_h1 = 0xf88D5353u;                                      \
-    uint32_t _mur_c1 = 0xcc9e2d51u;                                      \
-    uint32_t _mur_c2 = 0x1b873593u;                                      \
-    uint32_t _mur_k1 = 0;                                                \
-    const uint8_t *_mur_tail;                                            \
-    const uint32_t *_mur_blocks = (const uint32_t*)(_mur_data+(_mur_nblocks*4)); \
-    int _mur_i;                                                          \
-    for(_mur_i = -_mur_nblocks; _mur_i!=0; _mur_i++) {                   \
-        _mur_k1 = MUR_GETBLOCK(_mur_blocks,_mur_i);                        \
-        _mur_k1 *= _mur_c1;                                                \
-        _mur_k1 = MUR_ROTL32(_mur_k1,15);                                  \
-        _mur_k1 *= _mur_c2;                                                \
-                                                                           \
-        _mur_h1 ^= _mur_k1;                                                \
-        _mur_h1 = MUR_ROTL32(_mur_h1,13);                                  \
-        _mur_h1 = (_mur_h1*5U) + 0xe6546b64u;                              \
-    }                                                                    \
-    _mur_tail = (const uint8_t*)(_mur_data + (_mur_nblocks*4));          \
-    _mur_k1=0;                                                           \
-    switch((keylen) & 3U) {                                              \
-        case 3: _mur_k1 ^= (uint32_t)_mur_tail[2] << 16; /* FALLTHROUGH */ \
-        case 2: _mur_k1 ^= (uint32_t)_mur_tail[1] << 8;  /* FALLTHROUGH */ \
-        case 1: _mur_k1 ^= (uint32_t)_mur_tail[0];                         \
-        _mur_k1 *= _mur_c1;                                                \
-        _mur_k1 = MUR_ROTL32(_mur_k1,15);                                  \
-        _mur_k1 *= _mur_c2;                                                \
-        _mur_h1 ^= _mur_k1;                                                \
-    }                                                                    \
-    _mur_h1 ^= (uint32_t)(keylen);                                       \
-    MUR_FMIX(_mur_h1);                                                   \
-    hashv = _mur_h1;                                                     \
-    bkt = hashv & (num_bkts-1U);                                         \
+  const uint8_t *_mur_data = (const uint8_t*)(key);                    \
+  const int _mur_nblocks = (int)(keylen) / 4;                          \
+  uint32_t _mur_h1 = 0xf88D5353u;                                      \
+  uint32_t _mur_c1 = 0xcc9e2d51u;                                      \
+  uint32_t _mur_c2 = 0x1b873593u;                                      \
+  uint32_t _mur_k1 = 0;                                                \
+  const uint8_t *_mur_tail;                                            \
+  const uint32_t *_mur_blocks = (const uint32_t*)(_mur_data+(_mur_nblocks*4)); \
+  int _mur_i;                                                          \
+  for(_mur_i = -_mur_nblocks; _mur_i!=0; _mur_i++) {                   \
+    _mur_k1 = MUR_GETBLOCK(_mur_blocks,_mur_i);                        \
+    _mur_k1 *= _mur_c1;                                                \
+    _mur_k1 = MUR_ROTL32(_mur_k1,15);                                  \
+    _mur_k1 *= _mur_c2;                                                \
+                                                                       \
+    _mur_h1 ^= _mur_k1;                                                \
+    _mur_h1 = MUR_ROTL32(_mur_h1,13);                                  \
+    _mur_h1 = (_mur_h1*5U) + 0xe6546b64u;                              \
+  }                                                                    \
+  _mur_tail = (const uint8_t*)(_mur_data + (_mur_nblocks*4));          \
+  _mur_k1=0;                                                           \
+  switch((keylen) & 3U) {                                              \
+    case 3: _mur_k1 ^= (uint32_t)_mur_tail[2] << 16; /* FALLTHROUGH */ \
+    case 2: _mur_k1 ^= (uint32_t)_mur_tail[1] << 8;  /* FALLTHROUGH */ \
+    case 1: _mur_k1 ^= (uint32_t)_mur_tail[0];                         \
+    _mur_k1 *= _mur_c1;                                                \
+    _mur_k1 = MUR_ROTL32(_mur_k1,15);                                  \
+    _mur_k1 *= _mur_c2;                                                \
+    _mur_h1 ^= _mur_k1;                                                \
+  }                                                                    \
+  _mur_h1 ^= (uint32_t)(keylen);                                       \
+  MUR_FMIX(_mur_h1);                                                   \
+  hashv = _mur_h1;                                                     \
+  bkt = hashv & (num_bkts-1U);                                         \
 } while(0)
 #endif  /* HASH_USING_NO_STRICT_ALIASING */
 
@@ -613,29 +613,29 @@ do {                                                                   \
 /* iterate over items in a known bucket to find desired item */
 #define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,out)                       \
 do {                                                                             \
-    if (head.hh_head != NULL) { DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,head.hh_head)); } \
-    else { out=NULL; }                                                              \
-    while (out != NULL) {                                                           \
+ if (head.hh_head != NULL) { DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,head.hh_head)); } \
+ else { out=NULL; }                                                              \
+ while (out != NULL) {                                                           \
     if ((out)->hh.keylen == (keylen_in)) {                                       \
         if ((HASH_KEYCMP((out)->hh.key,keyptr,keylen_in)) == 0) { break; }         \
     }                                                                            \
     if ((out)->hh.hh_next != NULL) { DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,(out)->hh.hh_next)); } \
-        else { out = NULL; }                                                         \
-    }                                                                               \
+    else { out = NULL; }                                                         \
+ }                                                                               \
 } while(0)
 
 /* add an item to a bucket  */
 #define HASH_ADD_TO_BKT(head,addhh)                                              \
 do {                                                                             \
-    head.count++;                                                                   \
-    (addhh)->hh_next = head.hh_head;                                                \
-    (addhh)->hh_prev = NULL;                                                        \
-    if (head.hh_head != NULL) { (head).hh_head->hh_prev = (addhh); }                \
-    (head).hh_head=addhh;                                                           \
-    if ((head.count >= ((head.expand_mult+1U) * HASH_BKT_CAPACITY_THRESH))          \
+ head.count++;                                                                   \
+ (addhh)->hh_next = head.hh_head;                                                \
+ (addhh)->hh_prev = NULL;                                                        \
+ if (head.hh_head != NULL) { (head).hh_head->hh_prev = (addhh); }                \
+ (head).hh_head=addhh;                                                           \
+ if ((head.count >= ((head.expand_mult+1U) * HASH_BKT_CAPACITY_THRESH))          \
      && ((addhh)->tbl->noexpand != 1U)) {                                        \
        HASH_EXPAND_BUCKETS((addhh)->tbl);                                        \
-    }                                                                               \
+ }                                                                               \
 } while(0)
 
 /* remove an item from a given bucket */
@@ -739,85 +739,85 @@ do {                                                                            
   unsigned _hs_looping,_hs_nmerges,_hs_insize,_hs_psize,_hs_qsize;               \
   struct UT_hash_handle *_hs_p, *_hs_q, *_hs_e, *_hs_list, *_hs_tail;            \
   if (head != NULL) {                                                            \
-        _hs_insize = 1;                                                            \
-        _hs_looping = 1;                                                           \
-        _hs_list = &((head)->hh);                                                  \
-        while (_hs_looping != 0U) {                                                \
-            _hs_p = _hs_list;                                                      \
-            _hs_list = NULL;                                                       \
-            _hs_tail = NULL;                                                       \
-            _hs_nmerges = 0;                                                       \
-            while (_hs_p != NULL) {                                                \
-                _hs_nmerges++;                                                     \
-                _hs_q = _hs_p;                                                     \
-                _hs_psize = 0;                                                     \
-                for ( _hs_i = 0; _hs_i  < _hs_insize; _hs_i++ ) {                  \
-                    _hs_psize++;                                                   \
-                    _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?              \
-                        ((void*)((char*)(_hs_q->next) +                        \
-                        (head)->hh.tbl->hho)) : NULL);                         \
-                    if (! (_hs_q) ) { break; }                                     \
-                }                                                                  \
-                _hs_qsize = _hs_insize;                                            \
-                while ((_hs_psize > 0U) || ((_hs_qsize > 0U) && (_hs_q != NULL))) {\
-                    if (_hs_psize == 0U) {                                         \
-                        _hs_e = _hs_q;                                             \
-                        _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?          \
-                            ((void*)((char*)(_hs_q->next) +                    \
-                            (head)->hh.tbl->hho)) : NULL);                     \
-                        _hs_qsize--;                                               \
-                    } else if ( (_hs_qsize == 0U) || (_hs_q == NULL) ) {           \
-                        _hs_e = _hs_p;                                             \
-                        if (_hs_p != NULL){                                        \
-                            _hs_p = (UT_hash_handle*)((_hs_p->next != NULL) ?        \
+      _hs_insize = 1;                                                            \
+      _hs_looping = 1;                                                           \
+      _hs_list = &((head)->hh);                                                  \
+      while (_hs_looping != 0U) {                                                \
+          _hs_p = _hs_list;                                                      \
+          _hs_list = NULL;                                                       \
+          _hs_tail = NULL;                                                       \
+          _hs_nmerges = 0;                                                       \
+          while (_hs_p != NULL) {                                                \
+              _hs_nmerges++;                                                     \
+              _hs_q = _hs_p;                                                     \
+              _hs_psize = 0;                                                     \
+              for ( _hs_i = 0; _hs_i  < _hs_insize; _hs_i++ ) {                  \
+                  _hs_psize++;                                                   \
+                  _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?              \
+                          ((void*)((char*)(_hs_q->next) +                        \
+                          (head)->hh.tbl->hho)) : NULL);                         \
+                  if (! (_hs_q) ) { break; }                                     \
+              }                                                                  \
+              _hs_qsize = _hs_insize;                                            \
+              while ((_hs_psize > 0U) || ((_hs_qsize > 0U) && (_hs_q != NULL))) {\
+                  if (_hs_psize == 0U) {                                         \
+                      _hs_e = _hs_q;                                             \
+                      _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?          \
+                              ((void*)((char*)(_hs_q->next) +                    \
+                              (head)->hh.tbl->hho)) : NULL);                     \
+                      _hs_qsize--;                                               \
+                  } else if ( (_hs_qsize == 0U) || (_hs_q == NULL) ) {           \
+                      _hs_e = _hs_p;                                             \
+                      if (_hs_p != NULL){                                        \
+                        _hs_p = (UT_hash_handle*)((_hs_p->next != NULL) ?        \
                                 ((void*)((char*)(_hs_p->next) +                  \
                                 (head)->hh.tbl->hho)) : NULL);                   \
-                        }                                                         \
-                        _hs_psize--;                                               \
-                    } else if ((                                                   \
-                        cmpfcn(DECLTYPE(head)(ELMT_FROM_HH((head)->hh.tbl,_hs_p)), \
+                       }                                                         \
+                      _hs_psize--;                                               \
+                  } else if ((                                                   \
+                      cmpfcn(DECLTYPE(head)(ELMT_FROM_HH((head)->hh.tbl,_hs_p)), \
                              DECLTYPE(head)(ELMT_FROM_HH((head)->hh.tbl,_hs_q))) \
                              ) <= 0) {                                           \
-                        _hs_e = _hs_p;                                             \
-                        if (_hs_p != NULL){                                        \
-                            _hs_p = (UT_hash_handle*)((_hs_p->next != NULL) ?        \
-                                ((void*)((char*)(_hs_p->next) +                   \
-                                (head)->hh.tbl->hho)) : NULL);                    \
-                        }                                                         \
+                      _hs_e = _hs_p;                                             \
+                      if (_hs_p != NULL){                                        \
+                        _hs_p = (UT_hash_handle*)((_hs_p->next != NULL) ?        \
+                               ((void*)((char*)(_hs_p->next) +                   \
+                               (head)->hh.tbl->hho)) : NULL);                    \
+                       }                                                         \
                       _hs_psize--;                                               \
-                    } else {                                                       \
-                        _hs_e = _hs_q;                                             \
-                        _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?          \
-                            ((void*)((char*)(_hs_q->next) +                    \
-                            (head)->hh.tbl->hho)) : NULL);                     \
-                        _hs_qsize--;                                               \
-                    }                                                              \
-                    if ( _hs_tail != NULL ) {                                      \
-                        _hs_tail->next = ((_hs_e != NULL) ?                        \
+                  } else {                                                       \
+                      _hs_e = _hs_q;                                             \
+                      _hs_q = (UT_hash_handle*)((_hs_q->next != NULL) ?          \
+                              ((void*)((char*)(_hs_q->next) +                    \
+                              (head)->hh.tbl->hho)) : NULL);                     \
+                      _hs_qsize--;                                               \
+                  }                                                              \
+                  if ( _hs_tail != NULL ) {                                      \
+                      _hs_tail->next = ((_hs_e != NULL) ?                        \
                             ELMT_FROM_HH((head)->hh.tbl,_hs_e) : NULL);          \
-                    } else {                                                       \
-                        _hs_list = _hs_e;                                          \
-                    }                                                              \
-                    if (_hs_e != NULL) {                                           \
-                        _hs_e->prev = ((_hs_tail != NULL) ?                            \
-                        ELMT_FROM_HH((head)->hh.tbl,_hs_tail) : NULL);              \
-                    }                                                              \
-                    _hs_tail = _hs_e;                                              \
-                }                                                                  \
-                _hs_p = _hs_q;                                                     \
-            }                                                                      \
-            if (_hs_tail != NULL){                                                 \
-                _hs_tail->next = NULL;                                               \
-            }                                                                      \
-            if ( _hs_nmerges <= 1U ) {                                             \
-                _hs_looping=0;                                                     \
-                (head)->hh.tbl->tail = _hs_tail;                                   \
-                DECLTYPE_ASSIGN(head,ELMT_FROM_HH((head)->hh.tbl, _hs_list));      \
-            }                                                                      \
-            _hs_insize *= 2U;                                                      \
-        }                                                                          \
-        HASH_FSCK(hh,head);                                                        \
-    }                                                                               \
+                  } else {                                                       \
+                      _hs_list = _hs_e;                                          \
+                  }                                                              \
+                  if (_hs_e != NULL) {                                           \
+                  _hs_e->prev = ((_hs_tail != NULL) ?                            \
+                     ELMT_FROM_HH((head)->hh.tbl,_hs_tail) : NULL);              \
+                  }                                                              \
+                  _hs_tail = _hs_e;                                              \
+              }                                                                  \
+              _hs_p = _hs_q;                                                     \
+          }                                                                      \
+          if (_hs_tail != NULL){                                                 \
+            _hs_tail->next = NULL;                                               \
+          }                                                                      \
+          if ( _hs_nmerges <= 1U ) {                                             \
+              _hs_looping=0;                                                     \
+              (head)->hh.tbl->tail = _hs_tail;                                   \
+              DECLTYPE_ASSIGN(head,ELMT_FROM_HH((head)->hh.tbl, _hs_list));      \
+          }                                                                      \
+          _hs_insize *= 2U;                                                      \
+      }                                                                          \
+      HASH_FSCK(hh,head);                                                        \
+ }                                                                               \
 } while (0)
 
 /* This function selects items from one hash into another hash.
@@ -827,59 +827,59 @@ do {                                                                            
  * hash handle that must be present in the structure. */
 #define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                              \
 do {                                                                             \
-    unsigned _src_bkt, _dst_bkt;                                                   \
-    void *_last_elt=NULL, *_elt;                                                   \
-    UT_hash_handle *_src_hh, *_dst_hh, *_last_elt_hh=NULL;                         \
-    ptrdiff_t _dst_hho = ((char*)(&(dst)->hh_dst) - (char*)(dst));                 \
-    if (src != NULL) {                                                             \
-        for(_src_bkt=0; _src_bkt < (src)->hh_src.tbl->num_buckets; _src_bkt++) {     \
-            for(_src_hh = (src)->hh_src.tbl->buckets[_src_bkt].hh_head;                \
-                _src_hh != NULL;                                                       \
-                _src_hh = _src_hh->hh_next) {                                          \
-                _elt = ELMT_FROM_HH((src)->hh_src.tbl, _src_hh);                       \
-                if (cond(_elt)) {                                                      \
-                    _dst_hh = (UT_hash_handle*)(((char*)_elt) + _dst_hho);               \
-                    _dst_hh->key = _src_hh->key;                                         \
-                    _dst_hh->keylen = _src_hh->keylen;                                   \
-                    _dst_hh->hashv = _src_hh->hashv;                                     \
-                    _dst_hh->prev = _last_elt;                                           \
-                    _dst_hh->next = NULL;                                                \
-                    if (_last_elt_hh != NULL) { _last_elt_hh->next = _elt; }             \
-                    if (dst == NULL) {                                                   \
-                        DECLTYPE_ASSIGN(dst,_elt);                                         \
-                        HASH_MAKE_TABLE(hh_dst,dst);                                       \
-                    } else {                                                             \
-                        _dst_hh->tbl = (dst)->hh_dst.tbl;                                  \
-                    }                                                                    \
-                    HASH_TO_BKT(_dst_hh->hashv, _dst_hh->tbl->num_buckets, _dst_bkt);    \
-                    HASH_ADD_TO_BKT(_dst_hh->tbl->buckets[_dst_bkt],_dst_hh);            \
-                    (dst)->hh_dst.tbl->num_items++;                                      \
-                    _last_elt = _elt;                                                    \
-                    _last_elt_hh = _dst_hh;                                              \
-                }                                                                      \
-            }                                                                          \
-        }                                                                            \
-    }                                                                              \
-    HASH_FSCK(hh_dst,dst);                                                         \
+  unsigned _src_bkt, _dst_bkt;                                                   \
+  void *_last_elt=NULL, *_elt;                                                   \
+  UT_hash_handle *_src_hh, *_dst_hh, *_last_elt_hh=NULL;                         \
+  ptrdiff_t _dst_hho = ((char*)(&(dst)->hh_dst) - (char*)(dst));                 \
+  if (src != NULL) {                                                             \
+    for(_src_bkt=0; _src_bkt < (src)->hh_src.tbl->num_buckets; _src_bkt++) {     \
+      for(_src_hh = (src)->hh_src.tbl->buckets[_src_bkt].hh_head;                \
+          _src_hh != NULL;                                                       \
+          _src_hh = _src_hh->hh_next) {                                          \
+          _elt = ELMT_FROM_HH((src)->hh_src.tbl, _src_hh);                       \
+          if (cond(_elt)) {                                                      \
+            _dst_hh = (UT_hash_handle*)(((char*)_elt) + _dst_hho);               \
+            _dst_hh->key = _src_hh->key;                                         \
+            _dst_hh->keylen = _src_hh->keylen;                                   \
+            _dst_hh->hashv = _src_hh->hashv;                                     \
+            _dst_hh->prev = _last_elt;                                           \
+            _dst_hh->next = NULL;                                                \
+            if (_last_elt_hh != NULL) { _last_elt_hh->next = _elt; }             \
+            if (dst == NULL) {                                                   \
+              DECLTYPE_ASSIGN(dst,_elt);                                         \
+              HASH_MAKE_TABLE(hh_dst,dst);                                       \
+            } else {                                                             \
+              _dst_hh->tbl = (dst)->hh_dst.tbl;                                  \
+            }                                                                    \
+            HASH_TO_BKT(_dst_hh->hashv, _dst_hh->tbl->num_buckets, _dst_bkt);    \
+            HASH_ADD_TO_BKT(_dst_hh->tbl->buckets[_dst_bkt],_dst_hh);            \
+            (dst)->hh_dst.tbl->num_items++;                                      \
+            _last_elt = _elt;                                                    \
+            _last_elt_hh = _dst_hh;                                              \
+          }                                                                      \
+      }                                                                          \
+    }                                                                            \
+  }                                                                              \
+  HASH_FSCK(hh_dst,dst);                                                         \
 } while (0)
 
 #define HASH_CLEAR(hh,head)                                                      \
 do {                                                                             \
-    if (head != NULL) {                                                            \
-        uthash_free((head)->hh.tbl->buckets,                                         \
-            (head)->hh.tbl->num_buckets*sizeof(struct UT_hash_bucket));      \
-        HASH_BLOOM_FREE((head)->hh.tbl);                                             \
-        uthash_free((head)->hh.tbl, sizeof(UT_hash_table));                          \
-        (head)=NULL;                                                                 \
-    }                                                                              \
+  if (head != NULL) {                                                            \
+    uthash_free((head)->hh.tbl->buckets,                                         \
+                (head)->hh.tbl->num_buckets*sizeof(struct UT_hash_bucket));      \
+    HASH_BLOOM_FREE((head)->hh.tbl);                                             \
+    uthash_free((head)->hh.tbl, sizeof(UT_hash_table));                          \
+    (head)=NULL;                                                                 \
+  }                                                                              \
 } while(0)
 
 #define HASH_OVERHEAD(hh,head)                                                   \
-    ((head != NULL) ? (                                                             \
-    (size_t)(((head)->hh.tbl->num_items   * sizeof(UT_hash_handle))   +             \
-        ((head)->hh.tbl->num_buckets * sizeof(UT_hash_bucket))   +             \
-        sizeof(UT_hash_table)                                   +             \
-        (HASH_BLOOM_BYTELEN))) : 0U)
+ ((head != NULL) ? (                                                             \
+ (size_t)(((head)->hh.tbl->num_items   * sizeof(UT_hash_handle))   +             \
+          ((head)->hh.tbl->num_buckets * sizeof(UT_hash_bucket))   +             \
+           sizeof(UT_hash_table)                                   +             \
+           (HASH_BLOOM_BYTELEN))) : 0U)
 
 #ifdef NO_DECLTYPE
 #define HASH_ITER(hh,head,el,tmp)                                                \
@@ -920,47 +920,47 @@ typedef struct UT_hash_bucket {
 #define HASH_BLOOM_SIGNATURE 0xb12220f2u
 
 typedef struct UT_hash_table {
-    UT_hash_bucket *buckets;
-    unsigned num_buckets, log2_num_buckets;
-    unsigned num_items;
-    struct UT_hash_handle *tail; /* tail hh in app order, for fast append    */
-    ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
+   UT_hash_bucket *buckets;
+   unsigned num_buckets, log2_num_buckets;
+   unsigned num_items;
+   struct UT_hash_handle *tail; /* tail hh in app order, for fast append    */
+   ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
 
-    /* in an ideal situation (all buckets used equally), no bucket would have
+   /* in an ideal situation (all buckets used equally), no bucket would have
     * more than ceil(#items/#buckets) items. that's the ideal chain length. */
-    unsigned ideal_chain_maxlen;
+   unsigned ideal_chain_maxlen;
 
-    /* nonideal_items is the number of items in the hash whose chain position
+   /* nonideal_items is the number of items in the hash whose chain position
     * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
     * hash distribution; reaching them in a chain traversal takes >ideal steps */
-    unsigned nonideal_items;
+   unsigned nonideal_items;
 
-    /* ineffective expands occur when a bucket doubling was performed, but
+   /* ineffective expands occur when a bucket doubling was performed, but
     * afterward, more than half the items in the hash had nonideal chain
     * positions. If this happens on two consecutive expansions we inhibit any
     * further expansion, as it's not helping; this happens when the hash
     * function isn't a good fit for the key domain. When expansion is inhibited
     * the hash will still work, albeit no longer in constant time. */
-    unsigned ineff_expands, noexpand;
+   unsigned ineff_expands, noexpand;
 
-    uint32_t signature; /* used only to find hash tables in external analysis */
+   uint32_t signature; /* used only to find hash tables in external analysis */
 #ifdef HASH_BLOOM
-    uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
-    uint8_t *bloom_bv;
-    uint8_t bloom_nbits;
+   uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
+   uint8_t *bloom_bv;
+   uint8_t bloom_nbits;
 #endif
 
 } UT_hash_table;
 
 typedef struct UT_hash_handle {
-    struct UT_hash_table *tbl;
-    void *prev;                       /* prev element in app order      */
-    void *next;                       /* next element in app order      */
-    struct UT_hash_handle *hh_prev;   /* previous hh in bucket order    */
-    struct UT_hash_handle *hh_next;   /* next hh in bucket order        */
-    void *key;                        /* ptr to enclosing struct's key  */
-    unsigned keylen;                  /* enclosing struct's key len     */
-    unsigned hashv;                   /* result of hash-fcn(key)        */
+   struct UT_hash_table *tbl;
+   void *prev;                       /* prev element in app order      */
+   void *next;                       /* next element in app order      */
+   struct UT_hash_handle *hh_prev;   /* previous hh in bucket order    */
+   struct UT_hash_handle *hh_next;   /* next hh in bucket order        */
+   void *key;                        /* ptr to enclosing struct's key  */
+   unsigned keylen;                  /* enclosing struct's key len     */
+   unsigned hashv;                   /* result of hash-fcn(key)        */
 } UT_hash_handle;
 
 #endif /* UTHASH_H */
