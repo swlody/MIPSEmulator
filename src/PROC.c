@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
     uint32_t PC, newPC;
     uint32_t CI; // CI = CurrentInstruction
 
-    if(argc < 2) {
+    if (argc < 2) {
         printf("Input argument missing \n");
         return -1;
     }
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     
     // Load required code portions into Emulator Memory
     status = LoadOSMemory(argv[1]);
-    if(status < 0) { 
+    if (status < 0) { 
         return status; 
     }
     
@@ -58,7 +58,7 @@ int main(int argc, char * argv[])
     printf("Max Instruction to run = %d \n", MaxInst);
     PC = exec.GPC_START;
     int branch = 0;
-    for(i=0; i<MaxInst; i++) {
+    for (i=0; i<MaxInst; i++) {
         DynInstCount++;
         CI = readWord(PC, false);  
         printRegFile();
@@ -127,7 +127,7 @@ int main(int argc, char * argv[])
                         // div
                         int32_t dividend = RegFile[RS(CI)];
                         int32_t divisor = RegFile[RT(CI)];
-                        RegFile[32] = dividend % divisor;
+                        RegFile[32] = (int32_t) dividend % divisor;
                         RegFile[33] = (int32_t) (dividend / divisor);
                         break;
                     }
@@ -296,11 +296,7 @@ int main(int argc, char * argv[])
                             printf("Attempt write to $zero.\n");
                             break;
                         }
-                        uint8_t s = SA(CI);
-                        if (s == 0)
-                            RegFile[dest] = RegFile[RT(CI)];
-                        else
-                            RegFile[dest] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                        RegFile[dest] = ((uint32_t) RegFile[RT(CI)]) >> SA(CI);
                         break;
                     }
                     case 0x06:{
@@ -310,11 +306,7 @@ int main(int argc, char * argv[])
                             printf("Attempt write to $zero.\n");
                             break;
                         }
-                        uint8_t s = RegFile[RS(CI)];
-                        if (s == 0)
-                            RegFile[dest] = RegFile[RT(CI)];
-                        else
-                            RegFile[dest] = (0x7FFFFFFF >> (s - 1)) & (RegFile[RT(CI)] >> s);
+                        RegFile[dest] = ((uint32_t) RegFile[RT(CI)]) >> RegFile[RS(CI)];
                         break;
                     }
                     case 0x09:{
@@ -326,10 +318,8 @@ int main(int argc, char * argv[])
                         }
                         uint8_t dest = RD(CI);
                         uint8_t rs = RS(CI);
-                        if (rs == dest) {
+                        if (rs == dest)
                             printf("Undefined behavior. jal source and desination are equal.\n");
-                            break;
-                        }
                         if(dest == 0)
                             RegFile[31] = PC + 8;
                         else
@@ -345,7 +335,7 @@ int main(int argc, char * argv[])
                             printf("Exiting...\n");
                             return -1;
                         }
-                        newPC = RegFile[RS(CI)];
+                        newPC = (uint32_t) RegFile[RS(CI)];
                         branch = 1;
                         break;
                     }
@@ -368,7 +358,7 @@ int main(int argc, char * argv[])
                 if(dest == 0)
                     break;
                 uint8_t source = RS(CI);
-                int16_t imm = immediate(CI);
+                int32_t imm = signExtend(immediate(CI));
                 bool overflow = (RegFile[source] > 0 && imm > INT_MAX - RegFile[source]) 
                                 || (RegFile[source] < 0 && imm < INT_MIN - RegFile[source]);
                 if (overflow)
@@ -381,7 +371,7 @@ int main(int argc, char * argv[])
                 uint8_t dest = RT(CI);
                 if (dest == 0)
                     break;
-                RegFile[dest] = RegFile[RS(CI)] + immediate(CI);
+                RegFile[dest] = RegFile[RS(CI)] + signExtend(immediate(CI));
                 break;
             }
             case 0x0C:{
@@ -530,8 +520,7 @@ int main(int argc, char * argv[])
                     printf("Exiting...\n");
                     return -1;
                 }
-                //      This should go in upper 2 bits
-                newPC = ((PC + 4) & 0x60000000) & (instr_index(CI) << 2);
+                newPC = ((PC + 4) & 0xF0000000) | (instr_index(CI) << 2);
                 branch = 1;
                 break;
             }
@@ -543,7 +532,7 @@ int main(int argc, char * argv[])
                     return -1;
                 }
                 RegFile[31] = PC + 8;
-                newPC = ((PC + 4) & 0x60000000) & (instr_index(CI) << 2);
+                newPC = ((PC + 4) & 0xF0000000) | (instr_index(CI) << 2);
                 branch = 1;
                 break;
             }
@@ -612,7 +601,6 @@ int main(int argc, char * argv[])
             case 0x23:{
                 // LW
                 uint8_t rt = RT(CI);
-                printf("%d\n", rt);
                 if (rt == 0) {
                     printf("Attempt write to $zero.\n");
                     break;
@@ -622,8 +610,7 @@ int main(int argc, char * argv[])
                     printf("Offset not aligned with word boundary.\n");
                     break;
                 }
-                RegFile[rt] = (int32_t) readWord(RegFile[base(CI)] + signExtend(off), false);
-                printf("%d\n", RegFile[rt]);
+                RegFile[rt] = readWord(RegFile[base(CI)] + signExtend(off), false);
                 break;
             }
             case 0x22:{
